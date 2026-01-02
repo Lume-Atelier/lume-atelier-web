@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+@theme {
+  /* === PALETA BASEADA NO LOGO LUME ATELIER === */
+  /* TEMA CLARO (Padrão no Tailwind v4) */
+
+  /* Background & Foreground - BRANCO COMO PADRÃO */
+  --color-background: 0 0% 100%;           /* Branco puro */
+  --color-foreground: 0 0% 9%;             /* Preto profundo */
+
+  /* Primary - Dourado Premium #d4a955 */
+  --color-primary: 42 48% 59%;             /* Dourado #d4a955 */
+  --color-primary-foreground: 0 0% 9%;     /* Preto para contraste */
+
+  /* Secondary - Bronze/Marrom do detalhe do sol */
+  --color-secondary: 30 35% 45%;           /* Bronze */
+  --color-secondary-foreground: 0 0% 98%;  /* Branco */
+
+  /* Accent - Dourado mais claro */
+  --color-accent: 42 50% 70%;              /* Dourado claro */
+  --color-accent-foreground: 0 0% 9%;      /* Preto */
+
+  /* Muted - Tons neutros elegantes */
+  --color-muted: 30 10% 96%;               /* Cinza claro elegante */
+  --color-muted-foreground: 30 8% 40%;     /* Cinza escuro */
+
+  /* Card - Branco */
+  --color-card: 0 0% 100%;                 /* Card branco */
+  --color-card-foreground: 0 0% 9%;        /* Preto */
+
+  /* Popover */
+  --color-popover: 0 0% 100%;
+  --color-popover-foreground: 0 0% 9%;
+
+  /* Destructive - Vermelho elegante */
+  --color-destructive: 0 70% 50%;
+  --color-destructive-foreground: 0 0% 98%;
+
+  /* Border & Input - Tons claros */
+  --color-border: 30 15% 88%;              /* Border claro */
+  --color-input: 30 15% 88%;               /* Input claro */
+
+  /* Ring - Dourado do logo */
+  --color-ring: 42 48% 59%;
+
+  /* Radius */
+  --radius: 0.5rem;
+
+  /* === CORES CUSTOMIZADAS LUME === */
+  --color-gold: 42 48% 59%;                /* Dourado principal #d4a955 */
+  --color-gold-light: 42 50% 70%;          /* Dourado claro */
+  --color-gold-dark: 42 45% 48%;           /* Dourado escuro */
+  --color-bronze: 30 35% 45%;              /* Bronze do detalhe */
+  --color-bronze-light: 30 40% 60%;        /* Bronze claro */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Container customizado para garantir alinhamento consistente */
+  .container {
+    width: 100% !important;
+    max-width: 1400px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    box-sizing: border-box !important;
+  }
+}
+
+  /* Scrollbar personalizada com tema dourado */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--color-background));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--color-bronze));
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--color-primary));
+  }
+
+
+/* === DARK MODE === */
+@custom-variant dark (&:where(.dark, .dark *));
+
+.dark {
+  --color-background: 0 0% 9% !important;             /* Preto profundo do logo */
+  --color-foreground: 0 0% 98% !important;            /* Branco off-white */
+
+  --color-primary: 42 88% 55% !important;
+  --color-primary-foreground: 0 0% 9% !important;
+
+  --color-secondary: 30 40% 35% !important;           /* Bronze mais escuro */
+  --color-secondary-foreground: 0 0% 98% !important;
+
+  --color-accent: 42 90% 65% !important;              /* Gold claro para hover */
+  --color-accent-foreground: 0 0% 9% !important;
+
+  --color-muted: 30 8% 15% !important;                /* Cinza escuro elegante */
+  --color-muted-foreground: 30 10% 70% !important;
+
+  --color-card: 0 0% 12% !important;                  /* Card escuro */
+  --color-card-foreground: 0 0% 98% !important;
+
+  --color-popover: 0 0% 12% !important;
+  --color-popover-foreground: 0 0% 98% !important;
+
+  --color-destructive: 0 65% 55% !important;
+  --color-destructive-foreground: 0 0% 98% !important;
+
+  --color-border: 30 10% 20% !important;              /* Border escuro dourado */
+  --color-input: 30 10% 18% !important;
+
+  --color-ring: 42 88% 55% !important;
+}
+
+/* Força aplicação em HTML e BODY */
+html.dark,
+html.dark body {
+  background-color: #060606 !important;
+  color: hsl(0 0% 98%) !important;
+}
+
+/* === CLASSES UTILITÁRIAS CUSTOMIZADAS === */
+@layer utilities {
+  .text-gold {
+    color: hsl(var(--color-gold));
+  }
+
+  .bg-gold {
+    background-color: hsl(var(--color-gold));
+  }
+
+  .border-gold {
+    border-color: hsl(var(--color-gold));
+  }
+
+  .text-bronze {
+    color: hsl(var(--color-bronze));
+  }
+
+  .bg-bronze {
+    background-color: hsl(var(--color-bronze));
+  }
+
+  /* Gradiente dourado premium */
+  .gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--color-gold)) 0%, hsl(var(--color-gold-dark)) 100%);
+  }
+
+  /* Texto com efeito dourado metalizado */
+  .text-gold-gradient {
+    background: linear-gradient(135deg, hsl(var(--color-gold-light)) 0%, hsl(var(--color-gold)) 50%, hsl(var(--color-gold-dark)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Background pattern sutil (opcional) */
+  .bg-pattern {
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--color-gold) / 0.05) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+
+  /* Animações para botões */
+  .bg-size-200 {
+    background-size: 200% 200%;
+  }
+
+  .bg-pos-100 {
+    background-position: 100% 0;
+  }
+
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-gradient {
+    animation: gradient-shift 3s ease infinite;
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "common": {
+    "loading": "Lädt...",
+    "error": "Ein Fehler ist aufgetreten",
+    "retry": "Erneut versuchen",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "close": "Schließen",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "clear": "Löschen",
+    "apply": "Anwenden"
+  },
+  "nav": {
+    "home": "Startseite",
+    "products": "Produkte",
+    "categories": "Kategorien",
+    "library": "Meine Bibliothek",
+    "cart": "Warenkorb",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "admin": "Admin-Panel"
+  },
+  "product": {
+    "title": "Produkt",
+    "addToCart": "In den Warenkorb",
+    "removeFromCart": "Aus dem Warenkorb entfernen",
+    "specifications": "Spezifikationen",
+    "downloads": "Downloads",
+    "fileSize": "Dateigröße",
+    "polyCount": "Polygon-Anzahl",
+    "rigged": "Rigged",
+    "animated": "Animiert",
+    "pbr": "PBR",
+    "uvMapped": "UV Mapped",
+    "formats": "Formate",
+    "software": "Kompatible Software",
+    "dimensions": "Abmessungen",
+    "noResults": "Keine Produkte gefunden"
+  },
+  "cart": {
+    "title": "Warenkorb",
+    "empty": "Ihr Warenkorb ist leer",
+    "subtotal": "Zwischensumme",
+    "total": "Gesamt",
+    "checkout": "Zur Kasse",
+    "continueShopping": "Weiter Einkaufen",
+    "itemsCount": "{count} {count, plural, one {Artikel} other {Artikel}}"
+  },
+  "checkout": {
+    "title": "Zur Kasse",
+    "paymentMethod": "Zahlungsmethode",
+    "completePurchase": "Kauf Abschließen",
+    "processing": "Zahlung wird verarbeitet...",
+    "success": "Kauf erfolgreich abgeschlossen!",
+    "error": "Fehler bei der Zahlungsabwicklung"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "register": "Konto Erstellen",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "name": "Name",
+    "forgotPassword": "Passwort vergessen?",
+    "noAccount": "Noch kein Konto?",
+    "hasAccount": "Haben Sie bereits ein Konto?",
+    "logout": "Abmelden"
+  },
+  "library": {
+    "title": "Meine Bibliothek",
+    "purchased": "Gekauft",
+    "download": "Herunterladen",
+    "downloadAgain": "Erneut Herunterladen",
+    "purchaseDate": "Kaufdatum",
+    "empty": "Sie haben noch keine Assets gekauft"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Produkte",
+    "createProduct": "Produkt Erstellen",
+    "editProduct": "Produkt Bearbeiten",
+    "deleteProduct": "Produkt Löschen",
+    "uploadFile": "Datei Hochladen",
+    "uploadImages": "Bilder Hochladen"
+  }
+}

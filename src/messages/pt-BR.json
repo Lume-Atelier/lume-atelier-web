@@ -1,0 +1,89 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro",
+    "retry": "Tentar novamente",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "clear": "Limpar",
+    "apply": "Aplicar"
+  },
+  "nav": {
+    "home": "Início",
+    "products": "Produtos",
+    "categories": "Categorias",
+    "library": "Minha Biblioteca",
+    "cart": "Carrinho",
+    "login": "Entrar",
+    "logout": "Sair",
+    "admin": "Painel Admin"
+  },
+  "product": {
+    "title": "Produto",
+    "addToCart": "Adicionar ao Carrinho",
+    "removeFromCart": "Remover do Carrinho",
+    "specifications": "Especificações",
+    "downloads": "Downloads",
+    "fileSize": "Tamanho do Arquivo",
+    "polyCount": "Contagem de Polígonos",
+    "rigged": "Rigged",
+    "animated": "Animado",
+    "pbr": "PBR",
+    "uvMapped": "UV Mapped",
+    "formats": "Formatos",
+    "software": "Software Compatível",
+    "dimensions": "Dimensões",
+    "noResults": "Nenhum produto encontrado"
+  },
+  "cart": {
+    "title": "Carrinho de Compras",
+    "empty": "Seu carrinho está vazio",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "checkout": "Finalizar Compra",
+    "continueShopping": "Continuar Comprando",
+    "itemsCount": "{count} {count, plural, one {item} other {itens}}"
+  },
+  "checkout": {
+    "title": "Finalizar Compra",
+    "paymentMethod": "Método de Pagamento",
+    "completePurchase": "Concluir Compra",
+    "processing": "Processando pagamento...",
+    "success": "Compra realizada com sucesso!",
+    "error": "Erro ao processar pagamento"
+  },
+  "auth": {
+    "login": "Entrar",
+    "register": "Criar Conta",
+    "email": "E-mail",
+    "password": "Senha",
+    "name": "Nome",
+    "forgotPassword": "Esqueceu a senha?",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "logout": "Sair"
+  },
+  "library": {
+    "title": "Minha Biblioteca",
+    "purchased": "Comprados",
+    "download": "Baixar",
+    "downloadAgain": "Baixar Novamente",
+    "purchaseDate": "Data da Compra",
+    "empty": "Você ainda não comprou nenhum asset"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Produtos",
+    "createProduct": "Criar Produto",
+    "editProduct": "Editar Produto",
+    "deleteProduct": "Excluir Produto",
+    "uploadFile": "Fazer Upload de Arquivo",
+    "uploadImages": "Fazer Upload de Imagens"
+  }
+}

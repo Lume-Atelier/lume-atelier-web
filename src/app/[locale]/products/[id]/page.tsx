@@ -1,0 +1,323 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { ProductService } from '@/lib/api/services';
+import { useCartStore } from '@/store/cartStore';
+import type { Product } from '@/types';
+import { Button } from '@/components/ui/Button';
+
+export default function ProductDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const productId = params.id as string;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const { addItem, items } = useCartStore();
+
+  useEffect(() => {
+    loadProduct();
+  }, [productId]);
+
+  const loadProduct = async () => {
+    try {
+      const data = await ProductService.getProductById(productId);
+      setProduct(data);
+    } catch (error) {
+      console.error('Erro ao carregar produto:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    addItem({
+      productId: product.id,
+      title: product.title,
+      thumbnailUrl: product.thumbnailUrl,
+      priceInBRL: product.priceInBRL,
+      displayPrice: product.priceInBRL,
+      displayCurrency: 'BRL',
+    });
+  };
+
+  const handleBuyNow = () => {
+    if (!product) return;
+
+    addItem({
+      productId: product.id,
+      title: product.title,
+      thumbnailUrl: product.thumbnailUrl,
+      priceInBRL: product.priceInBRL,
+      displayPrice: product.priceInBRL,
+      displayCurrency: 'BRL',
+    });
+
+    router.push('/checkout');
+  };
+
+  const isInCart = items.some(item => item.productId === productId);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-foreground/20 border-t-primary"></div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">Produto não encontrado</h1>
+        <Button
+          onClick={() => router.push('/products')}
+          variant="outline"
+          size="lg"
+        >
+          Voltar para Produtos
+        </Button>
+      </div>
+    );
+  }
+
+  const images = product.images && product.images.length > 0
+    ? product.images
+    : product.thumbnailUrl
+      ? [{ id: '1', url: product.thumbnailUrl, alt: product.title, order: 0 }]
+      : [];
+
+  const currentImageUrl = images[selectedImage]?.url || product.thumbnailUrl;
+
+  return (
+    <main className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Left Column - Gallery & Description */}
+          <div className="space-y-4">
+            {/* Main Image - Reduced size */}
+            <div className="relative w-full" style={{ aspectRatio: '4/3', maxHeight: '650px' }}>
+              <div className="relative h-full bg-foreground/5 rounded-lg overflow-hidden">
+                {currentImageUrl ? (
+                  <Image
+                    src={currentImageUrl}
+                    alt={product.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-6xl">
+                    📦
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Thumbnails - Horizontal below main image */}
+            {images.length > 1 && (
+              <div className="grid grid-cols-4 gap-2">
+                {images.map((image, index) => (
+                  <button
+                    key={image.id}
+                    onClick={() => setSelectedImage(index)}
+                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedImage === index
+                        ? 'border-primary'
+                        : 'border-foreground/20 hover:border-foreground/40'
+                    }`}
+                  >
+                    {image.url ? (
+                      <Image
+                        src={image.url}
+                        alt={image.alt}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-2xl bg-foreground/5">
+                        📦
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Description */}
+            {product.description && (
+              <div className="border border-foreground/20 rounded-lg p-6">
+                <h3 className="font-semibold mb-3 text-lg">Descrição:</h3>
+                <div className="text-foreground/80">
+                  {showFullDescription ? (
+                    <p className="whitespace-pre-line">{product.description}</p>
+                  ) : (
+                    <p className="line-clamp-3 whitespace-pre-line">{product.description}</p>
+                  )}
+                  {product.description.length > 150 && (
+                    <button
+                      onClick={() => setShowFullDescription(!showFullDescription)}
+                      className="text-primary mt-2 flex items-center gap-1 hover:underline"
+                    >
+                      {showFullDescription ? 'leia menos ↑' : 'leia mais ↓'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Product Info & Specs */}
+          <div className="space-y-4">
+            {/* Title & Category - Boxed */}
+            {/* Price & Actions */}
+            <div className="border border-foreground/20 rounded-lg p-6">
+              <span className="text-sm uppercase font-semibold text-primary">{product.category}</span>
+              <h1 className="text-3xl font-bold mt-2">{product.title}</h1>
+              {product.shortDescription && (
+                  <p className="text-foreground/70 mt-3">{product.shortDescription}</p>
+              )}
+              <div className="text-3xl font-bold mb-4">
+                R$ {product.priceInBRL.toFixed(2)}
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={isInCart}
+                  variant="outline"
+                  size="lg"
+                  className="flex-1"
+                >
+                  {isInCart ? 'Já está no carrinho' : 'add to card'}
+                </Button>
+                <Button
+                  onClick={handleBuyNow}
+                  variant="outline"
+                  size="lg"
+                  className="flex-1"
+                >
+                  comprar
+                </Button>
+              </div>
+            </div>
+
+            {/* Technical Specs - Compact */}
+            <div className="border border-foreground/20 rounded-lg p-6">
+              <div className="space-y-3">
+                {/* Format */}
+                {product.fileFormats && product.fileFormats.length > 0 && (
+                  <div>
+                    <span className="text-sm text-foreground/60">Format: </span>
+                    <span className="text-sm font-medium">
+                      {product.fileFormats.join(', ').toLowerCase()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Texture Size */}
+                {product.textureResolution && (
+                  <div>
+                    <span className="text-sm text-foreground/60">Texture size: </span>
+                    <span className="text-sm font-medium">{product.textureResolution}</span>
+                  </div>
+                )}
+
+                {/* UV Map */}
+                {product.uvMapped && (
+                  <div>
+                    <span className="text-sm text-foreground/60">Uvmap: </span>
+                    <span className="text-sm font-medium">
+                      {product.uvMapped ? 'Overlap' : 'Non-overlap'}
+                    </span>
+                  </div>
+                )}
+
+                {/* Software */}
+                {product.software && product.software.length > 0 && (
+                  <div>
+                    <span className="text-sm text-foreground/60">Software: </span>
+                    <span className="text-sm font-medium">
+                      {product.software.join(', ')}
+                    </span>
+                  </div>
+                )}
+
+                {/* Poly Count */}
+                {product.polyCount && (
+                  <div>
+                    <span className="text-sm text-foreground/60">Poly Count (Quad): </span>
+                    <span className="text-sm font-medium">{product.polyCount.toLocaleString()}</span>
+                  </div>
+                )}
+
+                {/* File Size */}
+                {product.fileSize && (
+                  <div>
+                    <span className="text-sm text-foreground/60">File Size: </span>
+                    <span className="text-sm font-medium">
+                      {(product.fileSize / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                  </div>
+                )}
+
+                {/* Additional Flags */}
+                {(product.rigged || product.animated || product.pbr) && (
+                  <div className="pt-2 border-t border-foreground/10">
+                    <div className="flex flex-wrap gap-2">
+                      {product.rigged && (
+                        <span className="text-xs px-2 py-1 bg-foreground/10 rounded">
+                          Rigged
+                        </span>
+                      )}
+                      {product.animated && (
+                        <span className="text-xs px-2 py-1 bg-foreground/10 rounded">
+                          Animated
+                        </span>
+                      )}
+                      {product.pbr && (
+                        <span className="text-xs px-2 py-1 bg-foreground/10 rounded">
+                          PBR
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Compatible Software */}
+            <div className="border border-foreground/20 rounded-lg p-6">
+              <h3 className="text-sm font-semibold mb-4 text-foreground/80">
+                Compatível com:
+              </h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
+                  <span className="text-sm font-semibold">Blender</span>
+                </div>
+                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
+                  <span className="text-sm font-semibold">3ds Max</span>
+                </div>
+                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
+                  <span className="text-sm font-semibold">Maya</span>
+                </div>
+                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
+                  <span className="text-sm font-semibold">Cinema 4D</span>
+                </div>
+                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
+                  <span className="text-sm font-semibold">Corona</span>
+                </div>
+                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
+                  <span className="text-sm font-semibold">V-Ray</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

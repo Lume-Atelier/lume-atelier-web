@@ -1,0 +1,89 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "apply": "Apply"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "library": "My Library",
+    "cart": "Cart",
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "admin": "Admin Panel"
+  },
+  "product": {
+    "title": "Product",
+    "addToCart": "Add to Cart",
+    "removeFromCart": "Remove from Cart",
+    "specifications": "Specifications",
+    "downloads": "Downloads",
+    "fileSize": "File Size",
+    "polyCount": "Poly Count",
+    "rigged": "Rigged",
+    "animated": "Animated",
+    "pbr": "PBR",
+    "uvMapped": "UV Mapped",
+    "formats": "Formats",
+    "software": "Compatible Software",
+    "dimensions": "Dimensions",
+    "noResults": "No products found"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "checkout": "Checkout",
+    "continueShopping": "Continue Shopping",
+    "itemsCount": "{count} {count, plural, one {item} other {items}}"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "paymentMethod": "Payment Method",
+    "completePurchase": "Complete Purchase",
+    "processing": "Processing payment...",
+    "success": "Purchase completed successfully!",
+    "error": "Error processing payment"
+  },
+  "auth": {
+    "login": "Sign In",
+    "register": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "logout": "Sign Out"
+  },
+  "library": {
+    "title": "My Library",
+    "purchased": "Purchased",
+    "download": "Download",
+    "downloadAgain": "Download Again",
+    "purchaseDate": "Purchase Date",
+    "empty": "You haven't purchased any assets yet"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "createProduct": "Create Product",
+    "editProduct": "Edit Product",
+    "deleteProduct": "Delete Product",
+    "uploadFile": "Upload File",
+    "uploadImages": "Upload Images"
+  }
+}
