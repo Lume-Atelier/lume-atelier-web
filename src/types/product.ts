@@ -34,6 +34,10 @@ export interface Product {
   pbr: boolean;
   uvMapped: boolean;
 
+  // Arquivo do produto (backend fields)
+  fileOid?: string | null;
+  fileName?: string | null;
+
   // Dimensões (sempre em metros no backend)
   dimensionsInMeters?: {
     width: number;

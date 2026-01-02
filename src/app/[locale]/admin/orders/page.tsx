@@ -16,8 +16,8 @@ export default function AdminOrdersPage() {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const response = await AdminService.getAllOrders(page, 20);
-      setOrders(response.content);
+      const response = await AdminService.getAllOrders(page, 20) as any;
+      setOrders(response.content || []);
     } catch (error) {
       console.error('Erro ao carregar pedidos:', error);
     } finally {

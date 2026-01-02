@@ -71,9 +71,9 @@ export default function EditProductPage() {
         animated: data.animated || false,
         pbr: data.pbr || false,
         uvMapped: data.uvMapped || false,
-        dimensionsWidth: data.dimensionWidth?.toString() || '',
-        dimensionsHeight: data.dimensionHeight?.toString() || '',
-        dimensionsDepth: data.dimensionDepth?.toString() || '',
+        dimensionsWidth: data.dimensionsInMeters?.width?.toString() || '',
+        dimensionsHeight: data.dimensionsInMeters?.height?.toString() || '',
+        dimensionsDepth: data.dimensionsInMeters?.depth?.toString() || '',
         featured: data.featured || false,
         status: data.status as ProductStatus,
       });
@@ -151,9 +151,11 @@ export default function EditProductPage() {
         animated: formData.animated,
         pbr: formData.pbr,
         uvMapped: formData.uvMapped,
-        dimensionWidth: formData.dimensionsWidth ? parseFloat(formData.dimensionsWidth) : null,
-        dimensionHeight: formData.dimensionsHeight ? parseFloat(formData.dimensionsHeight) : null,
-        dimensionDepth: formData.dimensionsDepth ? parseFloat(formData.dimensionsDepth) : null,
+        dimensionsInMeters: formData.dimensionsWidth || formData.dimensionsHeight || formData.dimensionsDepth ? {
+          width: formData.dimensionsWidth ? parseFloat(formData.dimensionsWidth) : 0,
+          height: formData.dimensionsHeight ? parseFloat(formData.dimensionsHeight) : 0,
+          depth: formData.dimensionsDepth ? parseFloat(formData.dimensionsDepth) : 0,
+        } : undefined,
         featured: formData.featured,
         status: formData.status,
         // Atualiza arquivo se foi feito upload

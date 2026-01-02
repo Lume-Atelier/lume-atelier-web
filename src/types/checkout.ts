@@ -45,3 +45,14 @@ export interface PaymentWebhook {
   status: string;
   metadata?: Record<string, unknown>;
 }
+
+export interface Order {
+  id: string;
+  userId: string;
+  items: CartItem[];
+  totalAmountBRL: number;
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  paymentMethod: 'STRIPE' | 'PAYPAL' | 'PIX';
+  createdAt: string;
+  updatedAt: string;
+}

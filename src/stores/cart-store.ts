@@ -4,6 +4,7 @@ import type { CartItem } from '@/types';
 
 interface CartStore {
   items: CartItem[];
+  total: number;
   addItem: (item: CartItem) => void;
   removeItem: (productId: string) => void;
   clearCart: () => void;
@@ -19,6 +20,10 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+
+      get total() {
+        return get().items.reduce((total, item) => total + item.displayPrice, 0);
+      },
 
       addItem: (item) =>
         set((state) => {

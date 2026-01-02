@@ -57,8 +57,8 @@ export default function CheckoutPage() {
           <div className="space-y-4">
             {items.map((item) => (
               <div key={item.productId} className="border border-foreground/20 p-4 rounded">
-                <h3 className="font-bold">{item.name}</h3>
-                <p className="text-primary">R$ {item.price.toFixed(2)}</p>
+                <h3 className="font-bold">{item.title}</h3>
+                <p className="text-primary">R$ {item.displayPrice.toFixed(2)}</p>
               </div>
             ))}
           </div>
