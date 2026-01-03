@@ -22,11 +22,11 @@ const FILE_VALIDATIONS: Record<FileCategory, { extensions: string[]; maxSize: nu
     maxSize: 500 * 1024 * 1024, // 500MB
   },
   [FileCategory.TEXTURE]: {
-    extensions: ['.png', '.jpg', '.jpeg', '.tga', '.exr', '.hdr', '.tiff'],
-    maxSize: 50 * 1024 * 1024, // 50MB
+    extensions: ['.tga', '.exr', '.hdr', '.tiff', '.dds', '.zip'], // Texturas específicas + .zip
+    maxSize: 2 * 1024 * 1024 * 1024, // 2GB (para .zip de texturas)
   },
   [FileCategory.IMAGE]: {
-    extensions: ['.png', '.jpg', '.jpeg', '.webp', '.gif'],
+    extensions: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'], // Imagens comuns
     maxSize: 10 * 1024 * 1024, // 10MB
   },
   [FileCategory.ARCHIVE]: {

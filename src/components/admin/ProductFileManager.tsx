@@ -13,6 +13,7 @@ export interface ProductFileManagerProps {
   onThumbnailSelect: (id: string) => void;
   uploadProgress?: Map<string, { progress: number; status: 'pending' | 'uploading' | 'confirming' | 'completed' | 'error' }>;
   disabled?: boolean;
+  errors?: Array<{ fileName: string; error: string }>;
 }
 
 /**
