@@ -18,7 +18,7 @@ export interface FileValidationError {
 // Configurações de validação por categoria
 const FILE_VALIDATIONS: Record<FileCategory, { extensions: string[]; maxSize: number }> = {
   [FileCategory.MODEL]: {
-    extensions: ['.blend', '.fbx', '.obj', '.gltf', '.glb', '.dae', '.stl', '.3ds', '.max', '.ma', '.mb'],
+    extensions: ['.blend', '.fbx', '.obj', '.mtl', '.gltf', '.glb', '.dae', '.stl', '.3ds', '.max', '.ma', '.mb'],
     maxSize: 500 * 1024 * 1024, // 500MB
   },
   [FileCategory.TEXTURE]: {
@@ -27,7 +27,7 @@ const FILE_VALIDATIONS: Record<FileCategory, { extensions: string[]; maxSize: nu
   },
   [FileCategory.IMAGE]: {
     extensions: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.bmp'], // Imagens comuns
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 50 * 1024 * 1024, // 50MB
   },
   [FileCategory.ARCHIVE]: {
     extensions: ['.zip', '.rar', '.7z', '.tar', '.gz'],
@@ -95,9 +95,9 @@ export function useProductFiles() {
         return;
       }
 
-      // Gerar preview para imagens
+      // Gerar preview apenas para imagens de preview (não texturas 3D)
       let previewUrl: string | undefined;
-      if (category === FileCategory.IMAGE || category === FileCategory.TEXTURE) {
+      if (category === FileCategory.IMAGE) {
         previewUrl = URL.createObjectURL(file);
       }
 
@@ -195,13 +195,13 @@ export function useProductFiles() {
       validationErrors.push('Adicione pelo menos um arquivo ao produto');
     }
 
-    // Pelo menos 1 imagem
+    // Pelo menos 1 imagem de preview (não textura 3D)
     const images = files.filter(
-      (f) => f.category === FileCategory.IMAGE || f.category === FileCategory.TEXTURE
+      (f) => f.category === FileCategory.IMAGE
     );
 
     if (images.length === 0) {
-      validationErrors.push('Adicione pelo menos uma imagem para thumbnail');
+      validationErrors.push('Adicione pelo menos uma imagem de preview (.png, .jpg, .webp) para thumbnail do produto');
     }
 
     // Thumbnail selecionada
@@ -212,8 +212,8 @@ export function useProductFiles() {
     // Validar thumbnail pertence às imagens
     if (selectedThumbnailId) {
       const thumbnailFile = files.find((f) => f.id === selectedThumbnailId);
-      if (!thumbnailFile || (thumbnailFile.category !== FileCategory.IMAGE && thumbnailFile.category !== FileCategory.TEXTURE)) {
-        validationErrors.push('Thumbnail selecionada inválida');
+      if (!thumbnailFile || thumbnailFile.category !== FileCategory.IMAGE) {
+        validationErrors.push('Thumbnail selecionada inválida - deve ser uma imagem de preview');
       }
     }
 
@@ -221,11 +221,11 @@ export function useProductFiles() {
   }, [files, selectedThumbnailId]);
 
   /**
-   * Retorna apenas imagens (para seletor de thumbnail)
+   * Retorna apenas imagens de preview (para seletor de thumbnail)
    */
   const getImages = useCallback((): FileWithMetadata[] => {
     return files.filter(
-      (f) => f.category === FileCategory.IMAGE || f.category === FileCategory.TEXTURE
+      (f) => f.category === FileCategory.IMAGE
     );
   }, [files]);
 

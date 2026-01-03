@@ -49,6 +49,7 @@ export default function EditProductPage() {
   const {
     files,
     selectedThumbnailId,
+    errors: fileErrors,
     addFiles,
     removeFile,
     updateCategory,
@@ -532,8 +533,9 @@ export default function EditProductPage() {
                 onCategoryChange={updateCategory}
                 selectedThumbnailId={selectedThumbnailId}
                 onThumbnailSelect={setThumbnail}
-                uploadProgress={uploadProgressMap ? new Map(uploadProgressMap.map((item) => [item.fileName, { progress: item.progress, status: item.status }])) : undefined}
+                uploadProgress={uploadProgressMap ? new Map(uploadProgressMap.map((item) => [item.fileName, { progress: item.progress, status: item.status, error: item.error }])) : undefined}
                 disabled={uploading || saving}
+                errors={fileErrors}
               />
 
               {uploading && (

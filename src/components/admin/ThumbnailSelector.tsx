@@ -24,8 +24,14 @@ export function ThumbnailSelector({
   if (images.length === 0) {
     return (
       <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-        <p className="text-sm text-yellow-800 dark:text-yellow-400">
-          Adicione pelo menos uma imagem para selecionar como thumbnail.
+        <p className="text-sm font-medium text-yellow-800 dark:text-yellow-400 mb-1">
+          Nenhuma imagem de preview disponível
+        </p>
+        <p className="text-xs text-yellow-700 dark:text-yellow-300">
+          Adicione pelo menos uma imagem de preview (.png, .jpg, .webp) para usar como thumbnail do produto no catálogo.
+        </p>
+        <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-2">
+          <strong>Nota:</strong> Texturas 3D (.tga, .exr, .hdr) não podem ser usadas como thumbnail.
         </p>
       </div>
     );

@@ -77,7 +77,7 @@ export function determineFileCategory(fileName: string): FileCategory {
   const lowerFileName = fileName.toLowerCase();
 
   // Modelos 3D
-  if (['obj', 'fbx', 'blend', 'stl', 'dae', 'gltf', 'glb', '3ds', 'max', 'ma', 'mb'].includes(ext)) {
+  if (['obj', 'fbx', 'blend', 'stl', 'dae', 'gltf', 'glb', '3ds', 'max', 'ma', 'mb', 'mtl'].includes(ext)) {
     return FileCategory.MODEL;
   }
 

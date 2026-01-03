@@ -43,6 +43,7 @@ export default function NewProductPage() {
   const {
     files,
     selectedThumbnailId,
+    errors: fileErrors,
     addFiles,
     removeFile,
     updateCategory,
@@ -81,6 +82,7 @@ export default function NewProductPage() {
     }
 
     setLoading(true);
+    let createdProduct: any = null; // Para poder deletar em caso de erro
 
     try {
       // 2. Criar produto vazio (sem arquivos)
@@ -110,7 +112,7 @@ export default function NewProductPage() {
         thumbnailUrl: null, // Será atualizado depois
       };
 
-      const createdProduct = await AdminService.createProduct(productData);
+      createdProduct = await AdminService.createProduct(productData);
       const productId = createdProduct.id;
 
       // 3. Upload de arquivos ao R2
@@ -143,7 +145,20 @@ export default function NewProductPage() {
       router.push('/admin/products');
     } catch (err: any) {
       console.error('Erro ao criar produto:', err);
-      setError(err.response?.data?.message || err.message || 'Erro ao criar produto');
+
+      // Se criou o produto mas TODOS os arquivos falharam, deletar o produto órfão
+      if (err.message?.includes('Falha no upload de todos os arquivos') && createdProduct?.id) {
+        try {
+          console.log('Deletando produto órfão devido a falha total no upload...');
+          await AdminService.deleteProduct(createdProduct.id);
+          setError('Falha no upload de todos os arquivos. Produto não foi criado. Verifique sua conexão e tente novamente.');
+        } catch (deleteErr) {
+          console.error('Erro ao deletar produto órfão:', deleteErr);
+          setError('Erro no upload de arquivos e não foi possível limpar o produto criado. Contate o administrador.');
+        }
+      } else {
+        setError(err.response?.data?.message || err.message || 'Erro ao criar produto');
+      }
     } finally {
       setLoading(false);
     }
@@ -461,8 +476,9 @@ export default function NewProductPage() {
                 onCategoryChange={updateCategory}
                 selectedThumbnailId={selectedThumbnailId}
                 onThumbnailSelect={setThumbnail}
-                uploadProgress={uploadProgressMap ? new Map(uploadProgressMap.map((item) => [item.fileName, { progress: item.progress, status: item.status }])) : undefined}
+                uploadProgress={uploadProgressMap ? new Map(uploadProgressMap.map((item) => [item.fileName, { progress: item.progress, status: item.status, error: item.error }])) : undefined}
                 disabled={uploading || loading}
+                errors={fileErrors}
               />
 
               {uploading && (

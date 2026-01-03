@@ -11,7 +11,7 @@ export interface ProductFileManagerProps {
   onCategoryChange?: (id: string, category: FileCategory) => void;
   selectedThumbnailId: string | null;
   onThumbnailSelect: (id: string) => void;
-  uploadProgress?: Map<string, { progress: number; status: 'pending' | 'uploading' | 'confirming' | 'completed' | 'error' }>;
+  uploadProgress?: Map<string, { progress: number; status: 'pending' | 'uploading' | 'confirming' | 'completed' | 'error'; error?: string }>;
   disabled?: boolean;
   errors?: Array<{ fileName: string; error: string }>;
 }
@@ -33,10 +33,11 @@ export function ProductFileManager({
   onThumbnailSelect,
   uploadProgress,
   disabled = false,
+  errors = [],
 }: ProductFileManagerProps) {
-  // Filtrar apenas imagens para o seletor de thumbnail
+  // Filtrar apenas imagens de preview para o seletor de thumbnail (não texturas 3D)
   const images = files.filter(
-    (f) => f.category === FileCategory.IMAGE || f.category === FileCategory.TEXTURE
+    (f) => f.category === FileCategory.IMAGE
   );
 
   return (
@@ -46,6 +47,22 @@ export function ProductFileManager({
         onFilesAdded={onFilesAdded}
         disabled={disabled}
       />
+
+      {/* Erros de validação */}
+      {errors.length > 0 && (
+        <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">
+            Alguns arquivos não puderam ser adicionados:
+          </p>
+          <ul className="text-xs text-red-700 dark:text-red-300 space-y-1">
+            {errors.map((err, index) => (
+              <li key={index}>
+                <strong>{err.fileName}:</strong> {err.error}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Lista de arquivos */}
       {files.length > 0 && (
@@ -94,7 +111,7 @@ export function ProductFileManager({
                 <span className="text-blue-800 dark:text-blue-200 truncate max-w-xs">
                   {fileName}
                 </span>
-                <span className="text-blue-600 dark:text-blue-400 ml-2">
+                <span className={`ml-2 ${progress.status === 'error' ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`}>
                   {progress.status === 'completed' ? '✓' :
                    progress.status === 'error' ? '✗' :
                    progress.status === 'confirming' ? 'Confirmando...' :
@@ -103,6 +120,27 @@ export function ProductFileManager({
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Erros de upload (arquivos que falharam durante o upload) */}
+      {uploadProgress && Array.from(uploadProgress.values()).some((p) => p.status === 'error') && (
+        <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">
+            ⚠️ Alguns arquivos falharam no upload:
+          </p>
+          <ul className="text-xs text-red-700 dark:text-red-300 space-y-1">
+            {Array.from(uploadProgress.entries())
+              .filter(([, progress]) => progress.status === 'error')
+              .map(([fileName, progress]) => (
+                <li key={fileName}>
+                  <strong>{fileName}:</strong> {progress.error || 'Erro desconhecido'}
+                </li>
+              ))}
+          </ul>
+          <p className="text-xs text-red-600 dark:text-red-400 mt-3">
+            Os arquivos que foram enviados com sucesso foram salvos. Você pode tentar adicionar novamente os arquivos que falharam.
+          </p>
         </div>
       )}
     </div>
