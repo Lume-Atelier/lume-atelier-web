@@ -83,11 +83,12 @@ export function useR2Upload() {
                       ...newProgress.get(file.name)!,
                       progress: fileProgress,
                     });
+
+                    // Atualiza progresso geral com o estado atualizado
+                    updateOverallProgress(newProgress);
+
                     return newProgress;
                   });
-
-                  // Atualiza progresso geral
-                  updateOverallProgress();
                 }
               },
             });
@@ -157,8 +158,8 @@ export function useR2Upload() {
   /**
    * Calcula progresso geral baseado em todos os arquivos
    */
-  const updateOverallProgress = () => {
-    const progressArray = Array.from(progress.values());
+  const updateOverallProgress = (currentProgress: Map<string, UploadProgress>) => {
+    const progressArray = Array.from(currentProgress.values());
     if (progressArray.length === 0) {
       setOverallProgress(0);
       return;

@@ -6,6 +6,9 @@ import { AdminService } from '@/lib/api/services';
 import { ProductCategory, ProductStatus } from '@/types/product';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/Button';
+import { useProductFiles } from '@/hooks/useProductFiles';
+import { useR2Upload } from '@/hooks/useR2Upload';
+import { ProductFileManager } from '@/components/admin/ProductFileManager';
 import type { Product } from '@/types';
 
 export default function EditProductPage() {
@@ -17,13 +20,13 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     shortDescription: '',
     priceInBRL: '',
+    freeProduct: false,
     category: ProductCategory.PROPS,
     subcategory: '',
     tags: '',
@@ -42,8 +45,24 @@ export default function EditProductPage() {
     status: ProductStatus.DRAFT,
   });
 
-  const [productFile, setProductFile] = useState<File | null>(null);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  // Hooks para gerenciamento de arquivos R2
+  const {
+    files,
+    selectedThumbnailId,
+    addFiles,
+    removeFile,
+    updateCategory,
+    setThumbnail,
+    validateFiles,
+    getImages,
+  } = useProductFiles();
+
+  const {
+    uploadFiles,
+    uploading,
+    progress: uploadProgressMap,
+    overallProgress,
+  } = useR2Upload();
 
   useEffect(() => {
     loadProduct();
@@ -60,6 +79,7 @@ export default function EditProductPage() {
         description: data.description || '',
         shortDescription: data.shortDescription || '',
         priceInBRL: data.priceInBRL.toString(),
+        freeProduct: data.freeProduct || false,
         category: data.category as ProductCategory,
         subcategory: data.subcategory || '',
         tags: data.tags?.join(', ') || '',
@@ -96,50 +116,53 @@ export default function EditProductPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setProductFile(e.target.files[0]);
-    }
-  };
-
-  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImageFiles(Array.from(e.target.files));
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
     setSaving(true);
-    setUploadProgress(0);
 
     try {
-      // 1. Upload do arquivo do produto (se foi alterado)
-      let fileData = null;
-      if (productFile) {
-        fileData = await AdminService.uploadProductFile(productFile, setUploadProgress);
-      }
+      // 1. Se houver novos arquivos, fazer upload ao R2
+      let newThumbnailUrl = product?.thumbnailUrl;
+      let totalFileSize = product?.fileSize || 0;
 
-      // 2. Upload das imagens (se foram alteradas)
-      let imagesData = null;
-      if (imageFiles && imageFiles.length > 0) {
-        try {
-          const uploadResponse = await AdminService.uploadProductImages(imageFiles);
-          // @ts-ignore
-          imagesData = uploadResponse.images; // Array de objetos com imageOid, fileName, fileSize
-        } catch (uploadError) {
-          console.error('Error uploading images:', uploadError);
+      if (files.length > 0) {
+        // Validar arquivos apenas se houver novos
+        const validationErrors = validateFiles();
+        if (validationErrors.length > 0) {
+          setError(validationErrors.join(', '));
+          setSaving(false);
+          return;
         }
+
+        // Upload de arquivos ao R2
+        const uploadedFiles = await uploadFiles(
+          productId,
+          files.map(f => f.file)
+        );
+
+        // Determinar nova thumbnail
+        const thumbnailFile = uploadedFiles.find(
+          uf => files.find(f => f.id === selectedThumbnailId)?.file.name === uf.fileName
+        );
+
+        if (thumbnailFile) {
+          const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://files.lumeatelier.com';
+          newThumbnailUrl = `${r2PublicUrl}/${thumbnailFile.id}`;
+        }
+
+        // Calcular tamanho total dos arquivos
+        totalFileSize = uploadedFiles.reduce((sum, f) => sum + f.fileSize, 0);
       }
 
-      // 3. Atualizar o produto
+      // 2. Atualizar dados do produto
       const productData = {
-        ...product,
         title: formData.title,
         description: formData.description,
         shortDescription: formData.shortDescription,
-        priceInBRL: parseFloat(formData.priceInBRL),
+        priceInBRL: formData.freeProduct ? 0 : parseFloat(formData.priceInBRL),
+        freeProduct: formData.freeProduct,
         category: formData.category,
         subcategory: formData.subcategory || null,
         tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
@@ -151,30 +174,22 @@ export default function EditProductPage() {
         animated: formData.animated,
         pbr: formData.pbr,
         uvMapped: formData.uvMapped,
-        dimensionsInMeters: formData.dimensionsWidth || formData.dimensionsHeight || formData.dimensionsDepth ? {
-          width: formData.dimensionsWidth ? parseFloat(formData.dimensionsWidth) : 0,
-          height: formData.dimensionsHeight ? parseFloat(formData.dimensionsHeight) : 0,
-          depth: formData.dimensionsDepth ? parseFloat(formData.dimensionsDepth) : 0,
-        } : undefined,
+        dimensionWidth: formData.dimensionsWidth ? parseFloat(formData.dimensionsWidth) : null,
+        dimensionHeight: formData.dimensionsHeight ? parseFloat(formData.dimensionsHeight) : null,
+        dimensionDepth: formData.dimensionsDepth ? parseFloat(formData.dimensionsDepth) : null,
         featured: formData.featured,
         status: formData.status,
-        // Atualiza arquivo se foi feito upload
-        fileOid: fileData?.fileId || product?.fileOid || null,
-        fileName: fileData?.fileName || product?.fileName || null,
-        fileSize: fileData?.fileSize || product?.fileSize || 0,
-        thumbnailUrl: imagesData && imagesData.length > 0
-          ? `http://localhost:8080/api-lume-atelier/download/image/${imagesData[0].imageOid}`
-          : product?.thumbnailUrl || null,
+        thumbnailUrl: newThumbnailUrl,
+        fileSize: totalFileSize,
       };
 
       await AdminService.updateProduct(productId, productData);
       router.push('/admin/products');
     } catch (err: any) {
       console.error('Erro ao atualizar produto:', err);
-      setError(err.response?.data?.message || 'Erro ao atualizar produto');
+      setError(err.response?.data?.message || err.message || 'Erro ao atualizar produto');
     } finally {
       setSaving(false);
-      setUploadProgress(0);
     }
   };
 
@@ -268,16 +283,19 @@ export default function EditProductPage() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block mb-2 font-semibold">Preço (BRL) *</label>
+                    <label className="block mb-2 font-semibold">
+                      Preço (BRL) {!formData.freeProduct && <span className="text-red-500">*</span>}
+                    </label>
                     <input
                       type="number"
                       name="priceInBRL"
                       value={formData.priceInBRL}
                       onChange={handleChange}
-                      required
+                      required={!formData.freeProduct}
                       step="0.01"
                       min="0"
-                      className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary"
+                      disabled={formData.freeProduct}
+                      className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -295,6 +313,29 @@ export default function EditProductPage() {
                       ))}
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="freeProduct"
+                      checked={formData.freeProduct}
+                      onChange={handleChange}
+                      className="w-5 h-5"
+                    />
+                    <span className="font-semibold">Produto Gratuito</span>
+                  </label>
+                  {formData.freeProduct && (
+                    <div className="mt-2 ml-7 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <strong>Produto gratuito:</strong> Disponível sem custo, mas <strong>requer login</strong> para download.
+                      </p>
+                      <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                        Usuários precisarão estar autenticados para adicionar à biblioteca e fazer download.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -476,55 +517,38 @@ export default function EditProductPage() {
               </div>
             </div>
 
-            {/* Arquivos */}
+            {/* Arquivos do Produto */}
             <div className="border border-foreground/20 rounded p-6">
-              <h2 className="text-2xl font-bold mb-4">Arquivos</h2>
+              <h2 className="text-2xl font-bold mb-4">Arquivos do Produto</h2>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-2 font-semibold">Arquivo do Produto (.zip)</label>
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    accept=".zip"
-                    className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary"
-                  />
-                  {productFile ? (
-                    <p className="mt-2 text-sm text-foreground/60">
-                      Novo arquivo: {productFile.name} ({(productFile.size / 1024 / 1024).toFixed(2)} MB)
-                    </p>
-                  ) : product?.fileName && (
-                    <p className="mt-2 text-sm text-foreground/60">
-                      Arquivo atual: {product.fileName}
-                    </p>
-                  )}
-                </div>
+              <p className="text-sm text-foreground/60 mb-4">
+                Adicione novos arquivos ou mantenha os existentes. Deixe em branco para manter os arquivos atuais.
+              </p>
 
-                <div>
-                  <label className="block mb-2 font-semibold">Imagens do Produto</label>
-                  <input
-                    type="file"
-                    onChange={handleImagesChange}
-                    accept="image/*"
-                    multiple
-                    className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary"
-                  />
-                  {imageFiles.length > 0 && (
-                    <p className="mt-2 text-sm text-foreground/60">
-                      {imageFiles.length} nova(s) imagem(ns) selecionada(s)
-                    </p>
-                  )}
-                </div>
+              <ProductFileManager
+                files={files}
+                onFilesAdded={addFiles}
+                onRemoveFile={removeFile}
+                onCategoryChange={updateCategory}
+                selectedThumbnailId={selectedThumbnailId}
+                onThumbnailSelect={setThumbnail}
+                uploadProgress={uploadProgressMap ? new Map(uploadProgressMap.map((item) => [item.fileName, { progress: item.progress, status: item.status }])) : undefined}
+                disabled={uploading || saving}
+              />
 
-                {uploadProgress > 0 && (
-                  <div className="w-full bg-foreground/20 rounded-full h-4">
+              {uploading && (
+                <div className="mt-4">
+                  <p className="text-sm text-foreground/70 mb-2">
+                    Upload em progresso: {overallProgress}%
+                  </p>
+                  <div className="w-full bg-foreground/20 rounded-full h-2">
                     <div
-                      className="bg-primary h-4 rounded-full transition-all"
-                      style={{ width: `${uploadProgress}%` }}
+                      className="bg-primary h-2 rounded-full transition-all"
+                      style={{ width: `${overallProgress}%` }}
                     />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Status */}
@@ -586,13 +610,13 @@ export default function EditProductPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={saving}
-                loading={saving}
+                disabled={saving || uploading}
+                loading={saving || uploading}
                 variant="outline"
                 size="lg"
                 className="flex-1"
               >
-                {saving ? `Salvando... ${uploadProgress}%` : 'Salvar Alterações'}
+                {uploading ? `Fazendo upload... ${overallProgress}%` : saving ? 'Salvando...' : 'Salvar Alterações'}
               </Button>
             </div>
           </form>

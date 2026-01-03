@@ -79,31 +79,7 @@ export class AdminService {
     return apiClient.put<Product>(`/admin/products/${productId}`, product);
   }
 
-  static async uploadProductFile(
-    file: File,
-    onProgress?: (progress: number) => void
-  ): Promise<{ fileId: string; fileName: string; fileSize: number }> {
-    return apiClient.uploadFile('/admin/upload/file', file, onProgress);
-  }
-
-  static async uploadProductImages(files: File[]): Promise<{ images: Array<{ imageOid: string; fileName: string; fileSize: number }> }> {
-    if (!files || files.length === 0) {
-      throw new Error('Nenhum arquivo fornecido para upload');
-    }
-
-    const formData = new FormData();
-    files.forEach((file, index) => {
-      formData.append('images', file);
-    });
-
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
-
-    return apiClient.post<{ images: Array<{ imageOid: string; fileName: string; fileSize: number }> }>('/admin/upload/images', formData, {
-      timeout: 600000, // 10 minutos para uploads (tunnel pode ser lento)
-    });
-  }
-
-  // ========== NOVOS MÉTODOS R2 ==========
+  // ========== MÉTODOS R2 (Cloudflare R2 Storage) ==========
 
   /**
    * Gera presigned URLs para upload direto ao R2

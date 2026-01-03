@@ -6,18 +6,21 @@ import { AdminService } from '@/lib/api/services';
 import { ProductCategory, ProductStatus } from '@/types/product';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/Button';
+import { useProductFiles } from '@/hooks/useProductFiles';
+import { useR2Upload } from '@/hooks/useR2Upload';
+import { ProductFileManager } from '@/components/admin/ProductFileManager';
 
 export default function NewProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     shortDescription: '',
     priceInBRL: '',
+    freeProduct: false,
     category: ProductCategory.PROPS,
     subcategory: '',
     tags: '',
@@ -36,8 +39,24 @@ export default function NewProductPage() {
     status: ProductStatus.DRAFT,
   });
 
-  const [productFile, setProductFile] = useState<File | null>(null);
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  // Hooks para gerenciamento de arquivos R2
+  const {
+    files,
+    selectedThumbnailId,
+    addFiles,
+    removeFile,
+    updateCategory,
+    setThumbnail,
+    validateFiles,
+    getImages,
+  } = useProductFiles();
+
+  const {
+    uploadFiles,
+    uploading,
+    progress: uploadProgressMap,
+    overallProgress,
+  } = useR2Upload();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -50,50 +69,33 @@ export default function NewProductPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setProductFile(e.target.files[0]);
-    }
-  };
-
-  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImageFiles(Array.from(e.target.files));
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // 1. Validar arquivos
+    const validationErrors = validateFiles();
+    if (validationErrors.length > 0) {
+      setError(validationErrors.join(', '));
+      return;
+    }
+
     setLoading(true);
-    setUploadProgress(0);
 
     try {
-      // 1. Upload do arquivo do produto
-      let fileData = null;
-      if (productFile) {
-        fileData = await AdminService.uploadProductFile(productFile, setUploadProgress);
-      }
-
-      // 2. Upload das imagens
-      let imagesData = null;
-      if (imageFiles.length > 0) {
-        const uploadResponse = await AdminService.uploadProductImages(imageFiles);
-        imagesData = uploadResponse.images; // Array de objetos com imageOid, fileName, fileSize
-      }
-
-      // 3. Criar o produto
+      // 2. Criar produto vazio (sem arquivos)
       const productData = {
         title: formData.title,
         description: formData.description,
         shortDescription: formData.shortDescription,
-        priceInBRL: parseFloat(formData.priceInBRL),
+        priceInBRL: formData.freeProduct ? 0 : parseFloat(formData.priceInBRL),
+        freeProduct: formData.freeProduct,
         category: formData.category,
         subcategory: formData.subcategory || null,
         tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
         software: formData.software.split(',').map(s => s.trim()).filter(s => s),
         fileFormats: formData.fileFormats.split(',').map(f => f.trim()).filter(f => f),
-        fileSize: fileData?.fileSize || 0,
+        fileSize: 0, // Será atualizado depois
         polyCount: formData.polyCount ? parseInt(formData.polyCount) : null,
         textureResolution: formData.textureResolution || null,
         rigged: formData.rigged,
@@ -105,24 +107,45 @@ export default function NewProductPage() {
         dimensionDepth: formData.dimensionsDepth ? parseFloat(formData.dimensionsDepth) : null,
         featured: formData.featured,
         status: formData.status,
-        fileOid: fileData?.fileId || null,
-        fileName: fileData?.fileName || productFile?.name || null,
-        // Cria URL para a primeira imagem usando o endpoint de download
-        thumbnailUrl: imagesData && imagesData.length > 0
-          ? `http://localhost:8080/api-lume-atelier/download/image/${imagesData[0].imageOid}`
-          : null,
+        thumbnailUrl: null, // Será atualizado depois
       };
 
-      await AdminService.createProduct(productData);
+      const createdProduct = await AdminService.createProduct(productData);
+      const productId = createdProduct.id;
 
-      // Redireciona para a lista de produtos
+      // 3. Upload de arquivos ao R2
+      const uploadedFiles = await uploadFiles(
+        productId,
+        files.map(f => f.file)
+      );
+
+      // 4. Determinar thumbnail URL
+      const thumbnailFile = uploadedFiles.find(
+        uf => files.find(f => f.id === selectedThumbnailId)?.file.name === uf.fileName
+      );
+
+      if (!thumbnailFile) {
+        throw new Error('Erro ao determinar thumbnail');
+      }
+
+      // 5. Atualizar produto com thumbnailUrl e fileSize total
+      const totalFileSize = uploadedFiles.reduce((sum, f) => sum + f.fileSize, 0);
+
+      // TODO: Obter R2_PUBLIC_URL do env ou do backend
+      const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://files.lumeatelier.com';
+
+      await AdminService.updateProduct(productId, {
+        thumbnailUrl: `${r2PublicUrl}/${thumbnailFile.id}`, // Usar ID do arquivo como identificador
+        fileSize: totalFileSize,
+      });
+
+      // 6. Redirecionar
       router.push('/admin/products');
     } catch (err: any) {
       console.error('Erro ao criar produto:', err);
-      setError(err.response?.data?.message || 'Erro ao criar produto');
+      setError(err.response?.data?.message || err.message || 'Erro ao criar produto');
     } finally {
       setLoading(false);
-      setUploadProgress(0);
     }
   };
 
@@ -193,16 +216,19 @@ export default function NewProductPage() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block mb-2 font-semibold">Preço (BRL) *</label>
+                    <label className="block mb-2 font-semibold">
+                      Preço (BRL) {!formData.freeProduct && <span className="text-red-500">*</span>}
+                    </label>
                     <input
                       type="number"
                       name="priceInBRL"
                       value={formData.priceInBRL}
                       onChange={handleChange}
-                      required
+                      required={!formData.freeProduct}
                       step="0.01"
                       min="0"
-                      className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary"
+                      disabled={formData.freeProduct}
+                      className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
 
@@ -220,6 +246,29 @@ export default function NewProductPage() {
                       ))}
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="freeProduct"
+                      checked={formData.freeProduct}
+                      onChange={handleChange}
+                      className="w-5 h-5"
+                    />
+                    <span className="font-semibold">Produto Gratuito</span>
+                  </label>
+                  {formData.freeProduct && (
+                    <div className="mt-2 ml-7 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <strong>Produto gratuito:</strong> Disponível sem custo, mas <strong>requer login</strong> para download.
+                      </p>
+                      <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                        Usuários precisarão estar autenticados para adicionar à biblioteca e fazer download.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -401,53 +450,34 @@ export default function NewProductPage() {
               </div>
             </div>
 
-            {/* Arquivos */}
+            {/* Arquivos do Produto */}
             <div className="border border-foreground/20 rounded p-6">
-              <h2 className="text-2xl font-bold mb-4">Arquivos</h2>
+              <h2 className="text-2xl font-bold mb-4">Arquivos do Produto</h2>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-2 font-semibold">Arquivo do Produto (.zip) *</label>
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    accept=".zip"
-                    required
-                    className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary"
-                  />
-                  {productFile && (
-                    <p className="mt-2 text-sm text-foreground/60">
-                      Arquivo selecionado: {productFile.name} ({(productFile.size / 1024 / 1024).toFixed(2)} MB)
-                    </p>
-                  )}
-                </div>
+              <ProductFileManager
+                files={files}
+                onFilesAdded={addFiles}
+                onRemoveFile={removeFile}
+                onCategoryChange={updateCategory}
+                selectedThumbnailId={selectedThumbnailId}
+                onThumbnailSelect={setThumbnail}
+                uploadProgress={uploadProgressMap ? new Map(uploadProgressMap.map((item) => [item.fileName, { progress: item.progress, status: item.status }])) : undefined}
+                disabled={uploading || loading}
+              />
 
-                <div>
-                  <label className="block mb-2 font-semibold">Imagens do Produto *</label>
-                  <input
-                    type="file"
-                    onChange={handleImagesChange}
-                    accept="image/*"
-                    multiple
-                    required
-                    className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary"
-                  />
-                  {imageFiles.length > 0 && (
-                    <p className="mt-2 text-sm text-foreground/60">
-                      {imageFiles.length} imagem(ns) selecionada(s)
-                    </p>
-                  )}
-                </div>
-
-                {uploadProgress > 0 && (
-                  <div className="w-full bg-foreground/20 rounded-full h-4">
+              {uploading && (
+                <div className="mt-4">
+                  <p className="text-sm text-foreground/70 mb-2">
+                    Upload em progresso: {overallProgress}%
+                  </p>
+                  <div className="w-full bg-foreground/20 rounded-full h-2">
                     <div
-                      className="bg-primary h-4 rounded-full transition-all"
-                      style={{ width: `${uploadProgress}%` }}
+                      className="bg-primary h-2 rounded-full transition-all"
+                      style={{ width: `${overallProgress}%` }}
                     />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Status */}
@@ -494,13 +524,13 @@ export default function NewProductPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={loading}
-                loading={loading}
+                disabled={loading || uploading}
+                loading={loading || uploading}
                 variant="outline"
                 size="lg"
                 className="flex-1"
               >
-                {loading ? `Criando... ${uploadProgress}%` : 'Criar Produto'}
+                {uploading ? `Fazendo upload... ${overallProgress}%` : loading ? 'Criando produto...' : 'Criar Produto'}
               </Button>
             </div>
           </form>

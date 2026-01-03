@@ -13,6 +13,7 @@ export interface Product {
 
   // Preço (sempre em BRL no backend)
   priceInBRL: number;
+  freeProduct: boolean;
 
   // Convertido no frontend
   displayPrice?: number;
