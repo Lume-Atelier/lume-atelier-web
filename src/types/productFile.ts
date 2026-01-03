@@ -74,23 +74,29 @@ export interface DownloadUrlResponse {
  */
 export function determineFileCategory(fileName: string): FileCategory {
   const ext = fileName.toLowerCase().split('.').pop() || '';
+  const lowerFileName = fileName.toLowerCase();
 
   // Modelos 3D
   if (['obj', 'fbx', 'blend', 'stl', 'dae', 'gltf', 'glb', '3ds', 'max', 'ma', 'mb'].includes(ext)) {
     return FileCategory.MODEL;
   }
 
-  // Texturas
-  if (['png', 'jpg', 'jpeg', 'tga', 'exr', 'hdr', 'tiff'].includes(ext)) {
+  // Texturas (formatos específicos de textura + .zip que contenha "texture" no nome)
+  if (['tga', 'exr', 'hdr', 'tiff', 'dds'].includes(ext)) {
     return FileCategory.TEXTURE;
   }
 
-  // Imagens (preview/thumbnail)
-  if (['webp', 'gif', 'svg'].includes(ext)) {
+  // Se for .zip e contém "texture" ou "textura" no nome, categorizar como TEXTURE
+  if (ext === 'zip' && (lowerFileName.includes('texture') || lowerFileName.includes('textura'))) {
+    return FileCategory.TEXTURE;
+  }
+
+  // Imagens comuns (preview/thumbnails/showcase)
+  if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'bmp'].includes(ext)) {
     return FileCategory.IMAGE;
   }
 
-  // Arquivos compactados
+  // Arquivos compactados (archives)
   if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) {
     return FileCategory.ARCHIVE;
   }
