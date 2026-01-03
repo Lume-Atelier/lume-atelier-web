@@ -126,7 +126,7 @@ export default function LoginPage() {
         <div className="mt-6 text-center">
           <Button
             onClick={() => setIsLogin(!isLogin)}
-            variant="outline"
+            variant="muted"
           >
             {isLogin ? 'Não tem conta? Registre-se' : 'Já tem conta? Faça login'}
           </Button>

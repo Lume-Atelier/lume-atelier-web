@@ -9,21 +9,37 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce para o campo de busca
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(0); // Reset para primeira página ao buscar
+    }, 500); // Aguarda 500ms após parar de digitar
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     loadProducts();
-  }, [page]);
+  }, [page, debouncedSearch]);
 
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const response = await AdminService.getAllProducts(page, 20);
+      const response = await AdminService.getAllProducts(page, 20, debouncedSearch);
       setProducts(response.content);
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
   };
 
   const handleDelete = async (id: string) => {
@@ -51,6 +67,17 @@ export default function AdminProductsPage() {
             + Novo Produto
           </Button>
         </Link>
+      </div>
+
+      {/* Campo de busca */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Buscar produtos por título..."
+          value={search}
+          onChange={handleSearch}
+          className="w-full md:w-96 px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary"
+        />
       </div>
 
       <div className="border border-foreground/20 rounded overflow-hidden">

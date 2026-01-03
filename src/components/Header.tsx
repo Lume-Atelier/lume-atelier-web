@@ -137,18 +137,17 @@ export function Header() {
                           <Button variant="outline" size="sm">
                             Entrar
                           </Button>
-                        </Link> 
+                        </Link>
                 ) : (
                     <>
-                      <Button
+                      <Button variant="outline" size="sm"
                           onClick={handleLogout}
-                          className="px-4 py-2 text-sm border border-[#D4AF37] text-[#D4AF37] rounded hover:bg-[#D4AF37] hover:text-black transition"
                       >
                         Sair
                       </Button>
                       {isAdmin && (
                           <Link href="/admin">
-                            <Button className="px-4 py-2 text-sm text-[#D4AF37] hover:opacity-80 transition">
+                            <Button variant="outline" size="sm">
                               Admin
                             </Button>
                           </Link>

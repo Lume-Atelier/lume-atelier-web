@@ -1,28 +1,46 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { AdminService } from '@/lib/api/services';
 import { Button } from '@/components/ui/Button';
+import type { User } from '@/types';
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce para o campo de busca
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(0); // Reset para primeira página ao buscar
+    }, 500); // Aguarda 500ms após parar de digitar
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     loadUsers();
-  }, [page]);
+  }, [page, debouncedSearch]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const response = await AdminService.getAllUsers(page, 20);
+      const response = await AdminService.getAllUsers(page, 20, debouncedSearch);
       setUsers(response.content);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
   };
 
   const handleDelete = async (id: string) => {
@@ -44,6 +62,17 @@ export default function AdminUsersPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Gerenciar Usuários</h1>
+
+      {/* Campo de busca */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Buscar por nome..."
+          value={search}
+          onChange={handleSearch}
+          className="w-full md:w-96 px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary"
+        />
+      </div>
 
       <div className="border border-foreground/20 rounded overflow-hidden">
         <table className="w-full">
@@ -69,15 +98,25 @@ export default function AdminUsersPage() {
                   </span>
                 </td>
                 <td className="p-4">{new Date(user.createdAt).toLocaleDateString('pt-BR')}</td>
-                <td className="p-4 text-right">
-                  <Button
-                    onClick={() => handleDelete(user.id)}
-                    disabled={user.role === 'ADMIN'}
-                    variant="destructive"
-                    size="sm"
-                  >
-                    Excluir
-                  </Button>
+                <td className="p-4">
+                  <div className="flex gap-2 justify-end">
+                    <Link href={`/admin/users/${user.id}/edit`}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                      >
+                        Editar
+                      </Button>
+                    </Link>
+                    <Button
+                      onClick={() => handleDelete(user.id)}
+                      disabled={user.role === 'ADMIN'}
+                      variant="destructive"
+                      size="sm"
+                    >
+                      Excluir
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
