@@ -17,6 +17,7 @@ export interface ProductFile {
   fileName: string;
   fileType: string; // MIME type
   fileSize: number; // em bytes
+  r2Key: string; // Chave do arquivo no R2
   category: FileCategory;
   displayOrder: number;
   uploadedAt: string; // ISO 8601

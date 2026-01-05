@@ -150,7 +150,7 @@ export default function EditProductPage() {
 
         if (thumbnailFile) {
           const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://files.lumeatelier.com';
-          newThumbnailUrl = `${r2PublicUrl}/${thumbnailFile.id}`;
+          newThumbnailUrl = `${r2PublicUrl}/${thumbnailFile.r2Key}`;
         }
 
         // Calcular tamanho total dos arquivos
