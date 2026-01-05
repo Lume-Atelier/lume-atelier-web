@@ -132,4 +132,13 @@ export class AdminService {
   static async deleteProductFile(fileId: string): Promise<void> {
     return apiClient.delete<void>(`/admin/upload/r2/files/${fileId}`);
   }
+
+  /**
+   * Sincroniza ProductImages baseado nos ProductFiles categoria IMAGE
+   * @param productId ID do produto
+   * @returns Mensagem de confirmação
+   */
+  static async syncProductImages(productId: string): Promise<{ message: string; productId: string }> {
+    return apiClient.post<{ message: string; productId: string }>(`/admin/products/${productId}/sync-images`, {});
+  }
 }
