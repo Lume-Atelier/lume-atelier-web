@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { AdminService } from '@/lib/api/services';
-import { Button } from '@/components/ui/Button';
-import { DataTable, Column } from '@/components/admin/DataTable';
-import { ActionButtons } from '@/components/admin/ActionButtons';
+import { useState, useEffect } from "react";
+import { AdminService } from "@/lib/api/services";
+import { Button } from "@/components/ui/Button";
+import { DataTable, Column } from "@/components/admin/DataTable";
+import { ActionButtons } from "@/components/admin/ActionButtons";
 
 interface Order {
   id: string;
@@ -29,7 +29,7 @@ export default function AdminOrdersPage() {
       const response = (await AdminService.getAllOrders(page, 20)) as any;
       setOrders(response.content || []);
     } catch (error) {
-      console.error('Erro ao carregar pedidos:', error);
+      console.error("Erro ao carregar pedidos:", error);
     } finally {
       setLoading(false);
     }
@@ -38,39 +38,39 @@ export default function AdminOrdersPage() {
   // Definição das colunas da tabela
   const columns: Column<Order>[] = [
     {
-      key: 'id',
-      header: 'ID',
-      align: 'left',
+      key: "id",
+      header: "ID",
+      align: "left",
       render: (order) => (
         <span className="font-mono text-sm">{order.id.substring(0, 8)}</span>
       ),
     },
     {
-      key: 'createdAt',
-      header: 'Data',
-      align: 'left',
-      render: (order) => new Date(order.createdAt).toLocaleDateString('pt-BR'),
+      key: "createdAt",
+      header: "Data",
+      align: "left",
+      render: (order) => new Date(order.createdAt).toLocaleDateString("pt-BR"),
     },
     {
-      key: 'totalAmountBRL',
-      header: 'Total',
-      align: 'left',
+      key: "totalAmountBRL",
+      header: "Total",
+      align: "left",
       render: (order) => `R$ ${order.totalAmountBRL.toFixed(2)}`,
     },
     {
-      key: 'status',
-      header: 'Status',
-      align: 'left',
+      key: "status",
+      header: "Status",
+      align: "left",
       render: (order) => (
         <span
           className={`px-2 py-1 rounded text-sm ${
-            order.status === 'COMPLETED'
-              ? 'bg-green-500/20 text-green-500'
-              : order.status === 'PENDING'
-              ? 'bg-yellow-500/20 text-yellow-500'
-              : order.status === 'FAILED'
-              ? 'bg-red-500/20 text-red-500'
-              : 'bg-blue-500/20 text-blue-500'
+            order.status === "COMPLETED"
+              ? "bg-green-500/20 text-green-500"
+              : order.status === "PENDING"
+                ? "bg-yellow-500/20 text-yellow-500"
+                : order.status === "FAILED"
+                  ? "bg-red-500/20 text-red-500"
+                  : "bg-blue-500/20 text-blue-500"
           }`}
         >
           {order.status}
@@ -78,18 +78,16 @@ export default function AdminOrdersPage() {
       ),
     },
     {
-      key: 'paymentMethod',
-      header: 'Método de Pagamento',
-      align: 'left',
+      key: "paymentMethod",
+      header: "Método de Pagamento",
+      align: "left",
     },
     {
-      key: 'actions',
-      header: 'Ações',
-      align: 'right',
+      key: "actions",
+      header: "Ações",
+      align: "right",
       render: (order) => (
-        <ActionButtons
-          viewHref={`/admin/orders/${order.id}`}
-        />
+        <ActionButtons viewHref={`/admin/orders/${order.id}`} />
       ),
     },
   ];

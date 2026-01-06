@@ -11,16 +11,18 @@ export enum FileCategory {
 
 /**
  * Arquivo associado a um produto (armazenado no R2)
+ * ❌ NÃO contém r2Key (dado sensível, apenas no backend)
+ * ❌ NÃO contém presignedUrl (apenas após validação de compra)
  */
 export interface ProductFile {
   id: string;
   fileName: string;
   fileType: string; // MIME type
   fileSize: number; // em bytes
-  r2Key: string; // Chave do arquivo no R2
   category: FileCategory;
   displayOrder: number;
   uploadedAt: string; // ISO 8601
+  // r2Key: REMOVIDO - dado sensível, apenas backend
 }
 
 /**

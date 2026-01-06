@@ -43,13 +43,13 @@ export interface UserLibrary {
 
 export interface Purchase {
   id: string;
+  orderId: string;
   productId: string;
   productTitle: string;
   productThumbnail: string;
   purchaseDate: string;
   paidAmount: number;
   paidCurrency: string;
-  downloadUrl: string;
   downloadCount: number;
   maxDownloads: number;
 }

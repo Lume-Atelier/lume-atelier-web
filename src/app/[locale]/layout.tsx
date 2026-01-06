@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ClientLayout } from '@/components/ClientLayout';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { Providers } from './providers';
 import '../globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -41,11 +42,13 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body className={inter.className}>
         <ThemeProvider>
-          <NextIntlClientProvider messages={messages}>
-            <ClientLayout>
-              {children}
-            </ClientLayout>
-          </NextIntlClientProvider>
+          <Providers>
+            <NextIntlClientProvider messages={messages}>
+              <ClientLayout>
+                {children}
+              </ClientLayout>
+            </NextIntlClientProvider>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

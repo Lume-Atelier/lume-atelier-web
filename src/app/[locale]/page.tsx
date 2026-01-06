@@ -3,17 +3,18 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProductService } from '@/lib/api/services';
-import { ProductCard } from '@/components/ProductCard';
+import { ProductCard } from '@/components/features/product/ProductCard';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/components/ThemeProvider';
-import type { Product } from '@/types';
+import { useFeaturedProducts } from '@/hooks/queries';
 
 export default function HomePage() {
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+
+  // React Query gerencia loading, error, e cache automaticamente
+  const { data, isLoading, error } = useFeaturedProducts(0, 6);
+  const featuredProducts = data?.content || [];
 
   useEffect(() => {
     setMounted(true);
@@ -22,23 +23,6 @@ export default function HomePage() {
   useEffect(() => {
     console.log('HomePage - Current theme:', theme);
   }, [theme]);
-
-  useEffect(() => {
-    loadFeaturedProducts();
-  }, []);
-
-  const loadFeaturedProducts = async () => {
-    try {
-      const response = await ProductService.getFeaturedProducts(0, 6);
-      setFeaturedProducts(response.products || []);
-    } catch (error) {
-      console.error('Erro ao carregar produtos em destaque:', error);
-      // Não falhar se não houver produtos, apenas mostrar vazio
-      setFeaturedProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <main className="min-h-screen bg-background">
@@ -135,7 +119,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <div className="text-center py-20">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-foreground/20 border-t-primary"></div>
             </div>

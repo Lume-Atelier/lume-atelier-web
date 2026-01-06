@@ -1,0 +1,188 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "apply": "Apply",
+    "viewAll": "View All"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "cart": "Cart",
+    "library": "Library",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "admin": "Admin",
+    "profile": "Profile"
+  },
+  "home": {
+    "hero": {
+      "title": "Elevate Your Projects with Luxury 3D Models",
+      "description": "High-end 3D models with impeccable topology, ready to enhance the realism of your professional scenes.",
+      "exploreModels": "Explore Models",
+      "exploreCategories": "Explore Categories"
+    },
+    "compatible": {
+      "title": "Compatible with:"
+    },
+    "featured": {
+      "title": "Featured Products",
+      "description": "Explore our selection of most popular models",
+      "viewAll": "View All Products",
+      "empty": "No featured products at the moment."
+    },
+    "categories": {
+      "title": "Categories",
+      "description": "Find the perfect model for your project"
+    }
+  },
+  "products": {
+    "title": "All Products",
+    "description": "Explore our complete collection of premium 3D assets",
+    "showing": "Showing {count} products",
+    "filters": {
+      "title": "Filters",
+      "category": "Category",
+      "all": "All",
+      "priceRange": "Price Range ($)",
+      "min": "Min",
+      "max": "Max",
+      "features": "Features",
+      "rigged": "Rigged",
+      "animated": "Animated",
+      "pbr": "PBR",
+      "clearFilters": "Clear Filters"
+    },
+    "categories": {
+      "CHARACTERS": "Characters",
+      "ENVIRONMENTS": "Environments",
+      "PROPS": "Props",
+      "VEHICLES": "Vehicles",
+      "TEXTURES": "Textures",
+      "ANIMATIONS": "Animations"
+    },
+    "empty": {
+      "title": "No products found",
+      "description": "Try adjusting the filters or clearing the search."
+    },
+    "pagination": {
+      "page": "Page {current} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "productDetail": {
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "inCart": "In Cart",
+    "notFound": "Product not found",
+    "backToProducts": "Back to Products",
+    "description": "Description",
+    "showMore": "Show More",
+    "showLess": "Show Less",
+    "technicalSpecs": "Technical Specifications",
+    "files": "Included Files",
+    "tags": "Tags"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": {
+      "title": "Your cart is empty",
+      "description": "Add products to cart to continue shopping",
+      "browseCatalog": "Browse Catalog"
+    },
+    "item": "Item",
+    "price": "Price",
+    "action": "Action",
+    "remove": "Remove",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "clearCart": "Clear Cart",
+    "continueShopping": "Continue Shopping",
+    "checkout": "Checkout"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "summary": "Order Summary",
+    "paymentMethod": "Payment Method",
+    "stripe": "Credit Card (Stripe)",
+    "paypal": "PayPal",
+    "pix": "PIX",
+    "processing": "Processing...",
+    "completePayment": "Complete Payment",
+    "success": {
+      "title": "Order Successful!",
+      "description": "Your order has been processed. You can access your products in the library.",
+      "orderId": "Order ID",
+      "goToLibrary": "Go to Library",
+      "continueShopping": "Continue Shopping"
+    }
+  },
+  "library": {
+    "title": "My Library",
+    "description": "Access your purchased products",
+    "empty": {
+      "title": "Your library is empty",
+      "description": "You haven't purchased any products yet",
+      "browseProducts": "Browse Products"
+    },
+    "download": "Download",
+    "downloadCount": "Downloads: {current}/{max}",
+    "limitReached": "Download limit reached"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Login",
+      "noAccount": "Don't have an account?",
+      "register": "Register"
+    },
+    "register": {
+      "title": "Register",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Register",
+      "hasAccount": "Already have an account?",
+      "login": "Login"
+    }
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "orders": "Orders",
+    "users": "Users",
+    "stats": {
+      "totalProducts": "Total Products",
+      "totalOrders": "Total Orders",
+      "totalRevenue": "Total Revenue",
+      "totalUsers": "Total Users"
+    }
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "network": "Connection error. Check your internet.",
+    "unauthorized": "You need to be logged in to access this page.",
+    "forbidden": "You don't have permission to access this page.",
+    "notFound": "Page not found.",
+    "validation": "Please fill all fields correctly."
+  }
+}

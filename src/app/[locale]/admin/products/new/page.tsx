@@ -137,7 +137,7 @@ export default function NewProductPage() {
       const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://files.lumeatelier.com';
 
       await AdminService.updateProduct(productId, {
-        thumbnailUrl: `${r2PublicUrl}/${thumbnailFile.r2Key}`, // Usar r2Key para construir URL pública
+        thumbnailUrl: `${r2PublicUrl}/${thumbnailFile}`, // Usar r2Key para construir URL pública
         fileSize: totalFileSize,
       });
 

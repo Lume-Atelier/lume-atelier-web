@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/types';
+import { ProductSummaryDTO } from '@/types';
 
 interface ProductCardProps {
-  product: Product;
+  product: ProductSummaryDTO;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -37,19 +37,17 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.title}
           </h3>
           <p className="text-sm text-foreground/60 mb-3 line-clamp-2">
-            {product.shortDescription || product.description}
+            {product.shortDescription}
           </p>
 
-          {/* Features */}
+          {/* Features - ProductSummaryDTO não tem rigged/animated/pbr */}
+          {/* Essas informações aparecem apenas em ProductDetailDTO */}
           <div className="flex gap-2 mb-3 text-xs">
-            {product.rigged && (
-              <span className="px-2 py-1 bg-foreground/10 rounded">Rigged</span>
+            {product.freeProduct && (
+              <span className="px-2 py-1 bg-green-500/20 text-green-600 rounded">FREE</span>
             )}
-            {product.animated && (
-              <span className="px-2 py-1 bg-foreground/10 rounded">Animated</span>
-            )}
-            {product.pbr && (
-              <span className="px-2 py-1 bg-foreground/10 rounded">PBR</span>
+            {product.featured && (
+              <span className="px-2 py-1 bg-primary/20 text-primary rounded">DESTAQUE</span>
             )}
           </div>
 

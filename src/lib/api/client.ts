@@ -18,12 +18,18 @@ class ApiClient {
       timeout: 300000, // 5 minutos (necessário para uploads grandes via tunnel)
     });
 
-    // Interceptor para adicionar token de autenticação e configurar Content-Type
+    // Interceptor para adicionar token de autenticação, locale e configurar Content-Type
     this.client.interceptors.request.use(
       (config) => {
         const token = this.getAuthToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        // Adiciona Accept-Language baseado no locale da URL
+        const locale = this.getLocaleFromUrl();
+        if (locale) {
+          config.headers['Accept-Language'] = locale;
         }
 
         if (config.data instanceof FormData) {
@@ -63,6 +69,23 @@ class ApiClient {
         return Promise.reject(error);
       }
     );
+  }
+
+  /**
+   * Obtém o locale da URL atual
+   * Extrai o prefixo [locale] da rota (ex: /pt-BR/products -> pt-BR)
+   */
+  private getLocaleFromUrl(): string | null {
+    if (typeof window === 'undefined') return null;
+
+    const pathname = window.location.pathname;
+    const match = pathname.match(/^\/([a-z]{2}-[A-Z]{2}|[a-z]{2})\//);
+
+    if (match) {
+      return match[1]; // Retorna pt-BR, en, etc.
+    }
+
+    return 'pt-BR'; // Fallback para português
   }
 
   /**
@@ -120,6 +143,14 @@ class ApiClient {
    */
   async put<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.put<T>(url, data, config);
+    return response.data;
+  }
+
+  /**
+   * Requisição PATCH
+   */
+  async patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.patch<T>(url, data, config);
     return response.data;
   }
 

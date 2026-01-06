@@ -1,17 +1,45 @@
 /**
  * Tipos relacionados a produtos (Assets 3D)
+ * Refletem os DTOs do backend após refatoração RESTful
  */
 
-export interface Product {
+/**
+ * DTO Resumido - Usado em listagens públicas
+ * Corresponde a ProductSummaryDTO no backend
+ * ❌ NÃO contém r2Key, downloadUrl ou dados sensíveis
+ */
+export interface ProductSummaryDTO {
   id: string;
   sku: string;
+  title: string;
+  shortDescription: string;
+  priceInBRL: number;
+  category: ProductCategory;
+  status: ProductStatus;
+  thumbnailUrl: string;
+  featured: boolean;
+  freeProduct: boolean;
+  downloadCount: number;
+  rating?: number;
+  reviewCount: number;
 
-  // Informações básicas (pt-BR no backend, traduzidas no frontend)
+  // Convertido no frontend
+  displayPrice?: number;
+  displayCurrency?: string;
+}
+
+/**
+ * DTO Detalhado - Usado na página do produto
+ * Corresponde a ProductDetailDTO no backend
+ * ✅ Contém especificações técnicas
+ * ❌ NÃO contém r2Key ou presignedUrl
+ */
+export interface ProductDetailDTO {
+  id: string;
+  sku: string;
   title: string;
   description: string;
   shortDescription: string;
-
-  // Preço (sempre em BRL no backend)
   priceInBRL: number;
   freeProduct: boolean;
 
@@ -27,17 +55,12 @@ export interface Product {
   // Especificações técnicas
   software: string[];
   fileFormats: string[];
-  fileSize: number; // em bytes
   polyCount?: number;
   textureResolution?: string;
   rigged: boolean;
   animated: boolean;
   pbr: boolean;
   uvMapped: boolean;
-
-  // Arquivo do produto (backend fields)
-  fileOid?: string | null;
-  fileName?: string | null;
 
   // Dimensões (sempre em metros no backend)
   dimensionsInMeters?: {
@@ -47,8 +70,11 @@ export interface Product {
   };
 
   // Galeria
-  images: ProductImage[];
+  images: ProductImageDTO[];
   thumbnailUrl: string;
+
+  // Arquivos disponíveis (SEM downloadUrl!)
+  availableFiles: FileAvailabilityDTO[];
 
   // Metadados
   createdAt: string;
@@ -60,6 +86,57 @@ export interface Product {
   downloadCount: number;
   rating?: number;
   reviewCount: number;
+}
+
+/**
+ * DTO de Download - Gerado APENAS após validação de compra
+ * Corresponde a ProductDownloadDTO no backend
+ * ✅ Contém presigned URLs temporárias
+ */
+export interface ProductDownloadDTO {
+  productId: string;
+  productTitle: string;
+  orderId: string;
+  files: SecureFileDownload[];
+}
+
+export interface SecureFileDownload {
+  fileId: string;
+  fileName: string;
+  fileType: string;
+  category: string;
+  fileSizeMB: string;
+  presignedUrl: string; // URL temporária (60 min)
+  expiresAt: string; // ISO 8601
+  downloadLimit: number; // Máximo de downloads
+}
+
+/**
+ * Informação de arquivo disponível (SEM presignedUrl)
+ * Usado em ProductDetailDTO
+ */
+export interface FileAvailabilityDTO {
+  fileId: string;
+  fileName: string;
+  fileType: string;
+  category: string;
+  fileSizeMB: string;
+}
+
+export interface ProductImageDTO {
+  id: string;
+  url: string;
+  alt: string;
+  displayOrder: number;
+}
+
+// DEPRECATED: Use ProductSummaryDTO ou ProductDetailDTO
+export interface Product extends Omit<ProductDetailDTO, 'images'> {
+  // Mantido por compatibilidade temporária
+  fileOid?: string | null;
+  fileName?: string | null;
+  fileSize?: number;
+  images: ProductImage[];
 }
 
 export interface ProductImage {
@@ -96,6 +173,19 @@ export interface ProductFilter {
   search?: string;
 }
 
+/**
+ * Resposta paginada genérica
+ * Corresponde a PageResponse<T> no backend
+ */
+export interface PageResponse<T> {
+  content: T[]; // Lista de items (DTOs)
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalElements: number;
+}
+
+// DEPRECATED: Use PageResponse<ProductSummaryDTO>
 export interface ProductListResponse {
   products: Product[];
   total: number;

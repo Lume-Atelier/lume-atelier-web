@@ -2,14 +2,14 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useCartStore } from '@/store/cartStore';
+import { useCartStore } from '@/stores/cart-store';
 import { AuthService } from '@/lib/api/services';
 import { Button } from '@/components/ui/Button';
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, removeItem, getTotalPrice, clearCart } = useCartStore();
-  const total = getTotalPrice();
+  const { items, removeItem, getTotal, clearCart } = useCartStore();
+  const total = getTotal();
 
   const handleCheckout = () => {
     const isAuth = AuthService.isAuthenticated();

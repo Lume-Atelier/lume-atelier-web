@@ -1,5 +1,13 @@
-import { apiClient } from '../client';
-import type { Product, User, ProductFile, PresignedUrlResponse, ConfirmUploadRequest, FileUploadRequest, determineFileCategory } from '@/types';
+import { apiClient } from "../client";
+import type {
+  Product,
+  User,
+  ProductFile,
+  PresignedUrlResponse,
+  ConfirmUploadRequest,
+  FileUploadRequest,
+  determineFileCategory,
+} from "@/types";
 
 interface PagedResponse<T> {
   content: T[];
@@ -18,65 +26,83 @@ interface DashboardStats {
 
 export class AdminService {
   static async getDashboardStats(): Promise<DashboardStats> {
-    return apiClient.get<DashboardStats>('/admin/dashboard/stats');
+    return apiClient.get<DashboardStats>("/admin/dashboard");
   }
 
-  static async getAllProducts(page: number = 0, size: number = 20, search?: string): Promise<PagedResponse<Product>> {
+  static async getAllProducts(
+    page: number = 0,
+    size: number = 20,
+    search?: string,
+  ): Promise<PagedResponse<Product>> {
     const params = new URLSearchParams({
       page: page.toString(),
-      size: size.toString(),
+      pageSize: size.toString(),
     });
 
     if (search) {
-      params.append('search', search);
+      params.append("search", search);
     }
 
-    return apiClient.get<PagedResponse<Product>>(`/admin/products?${params.toString()}`);
+    return apiClient.get<PagedResponse<Product>>(
+      `/products?${params.toString()}`,
+    );
   }
 
   static async getProductById(productId: string): Promise<Product> {
     return apiClient.get<Product>(`/products/${productId}`);
   }
 
-  static async getAllOrders(page: number = 0, size: number = 20): Promise<PagedResponse<any>> {
-    return apiClient.get<PagedResponse<any>>(`/admin/orders?page=${page}&size=${size}`);
+  static async getAllOrders(
+    page: number = 0,
+    size: number = 20,
+  ): Promise<PagedResponse<any>> {
+    return apiClient.get<PagedResponse<any>>(
+      `/orders?page=${page}&pageSize=${size}`,
+    );
   }
 
-  static async getAllUsers(page: number = 0, size: number = 20, search?: string): Promise<PagedResponse<User>> {
+  static async getAllUsers(
+    page: number = 0,
+    size: number = 20,
+    search?: string,
+  ): Promise<PagedResponse<User>> {
     const params = new URLSearchParams({
       page: page.toString(),
-      size: size.toString(),
+      pageSize: size.toString(),
     });
 
     if (search) {
-      params.append('search', search);
+      params.append("search", search);
     }
 
-    return apiClient.get<PagedResponse<User>>(`/admin/users?${params.toString()}`);
+    return apiClient.get<PagedResponse<User>>(`/users?${params.toString()}`);
   }
 
   static async getUserById(userId: string): Promise<User> {
-    return apiClient.get<User>(`/admin/users/${userId}`);
+    return apiClient.get<User>(`/users/${userId}`);
   }
 
   static async updateUser(userId: string, user: Partial<User>): Promise<User> {
-    return apiClient.put<User>(`/admin/users/${userId}`, user);
+    return apiClient.put<User>(`/users/${userId}`, user);
   }
 
   static async deleteProduct(productId: string): Promise<void> {
-    return apiClient.delete<void>(`/admin/products/${productId}`);
+    return apiClient.delete<void>(`/products/${productId}`);
   }
 
   static async deleteUser(userId: string): Promise<void> {
-    return apiClient.delete<void>(`/admin/users/${userId}`);
+    return apiClient.delete<void>(`/users/${userId}`);
   }
 
   static async createProduct(product: any): Promise<Product> {
-    return apiClient.post<Product>('/admin/products', product);
+    return apiClient.post<Product>("/products", product);
   }
 
-  static async updateProduct(productId: string, product: any): Promise<Product> {
-    return apiClient.put<Product>(`/admin/products/${productId}`, product);
+  static async updateProduct(
+    productId: string,
+    product: any,
+  ): Promise<Product> {
+    return apiClient.put<Product>(`/products/${productId}`, product);
   }
 
   // ========== MÉTODOS R2 (Cloudflare R2 Storage) ==========
@@ -89,10 +115,10 @@ export class AdminService {
    */
   static async generatePresignedUrls(
     productId: string,
-    files: File[]
+    files: File[],
   ): Promise<PresignedUrlResponse[]> {
     // Importa dinamicamente para evitar erro de circular dependency
-    const { determineFileCategory } = await import('@/types/productFile');
+    const { determineFileCategory } = await import("@/types/productFile");
 
     const filesData: FileUploadRequest[] = files.map((f) => ({
       fileName: f.name,
@@ -101,10 +127,13 @@ export class AdminService {
       category: determineFileCategory(f.name),
     }));
 
-    return apiClient.post<PresignedUrlResponse[]>('/admin/upload/r2/presigned-urls', {
-      productId,
-      files: filesData,
-    });
+    return apiClient.post<PresignedUrlResponse[]>(
+      `/products/${productId}/files/upload-urls`,
+      {
+        productId,
+        files: filesData,
+      },
+    );
   }
 
   /**
@@ -113,7 +142,10 @@ export class AdminService {
    * @returns ProductFile criado
    */
   static async confirmUpload(data: ConfirmUploadRequest): Promise<ProductFile> {
-    return apiClient.post<ProductFile>('/admin/upload/r2/confirm', data);
+    return apiClient.post<ProductFile>(
+      `/products/${data.productId}/files`,
+      data,
+    );
   }
 
   /**
@@ -122,15 +154,18 @@ export class AdminService {
    * @returns Array de ProductFile
    */
   static async getProductFiles(productId: string): Promise<ProductFile[]> {
-    return apiClient.get<ProductFile[]>(`/admin/upload/r2/products/${productId}/files`);
+    return apiClient.get<ProductFile[]>(
+      `/products/${productId}/files`,
+    );
   }
 
   /**
    * Deleta arquivo do R2 e do banco
+   * @param productId ID do produto
    * @param fileId ID do arquivo
    */
-  static async deleteProductFile(fileId: string): Promise<void> {
-    return apiClient.delete<void>(`/admin/upload/r2/files/${fileId}`);
+  static async deleteProductFile(productId: string, fileId: string): Promise<void> {
+    return apiClient.delete<void>(`/products/${productId}/files/${fileId}`);
   }
 
   /**
@@ -138,7 +173,12 @@ export class AdminService {
    * @param productId ID do produto
    * @returns Mensagem de confirmação
    */
-  static async syncProductImages(productId: string): Promise<{ message: string; productId: string }> {
-    return apiClient.post<{ message: string; productId: string }>(`/admin/products/${productId}/sync-images`, {});
+  static async syncProductImages(
+    productId: string,
+  ): Promise<{ message: string; productId: string }> {
+    return apiClient.post<{ message: string; productId: string }>(
+      `/products/${productId}/files/sync`,
+      {},
+    );
   }
 }

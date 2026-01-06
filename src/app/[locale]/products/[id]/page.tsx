@@ -1,37 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { ProductService } from '@/lib/api/services';
-import { useCartStore } from '@/store/cartStore';
-import type { Product } from '@/types';
+import { useCartStore } from '@/stores/cart-store';
+import { useProductDetail } from '@/hooks/queries';
 import { Button } from '@/components/ui/Button';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const productId = params.id as string;
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { addItem, items } = useCartStore();
 
-  useEffect(() => {
-    loadProduct();
-  }, [productId]);
-
-  const loadProduct = async () => {
-    try {
-      const data = await ProductService.getProductById(productId);
-      setProduct(data);
-    } catch (error) {
-      console.error('Erro ao carregar produto:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // React Query gerencia loading, error e cache automaticamente
+  const { data: product, isLoading, error } = useProductDetail(productId);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -63,7 +48,7 @@ export default function ProductDetailPage() {
 
   const isInCart = items.some(item => item.productId === productId);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-foreground/20 border-t-primary"></div>
@@ -89,7 +74,7 @@ export default function ProductDetailPage() {
   const images = product.images && product.images.length > 0
     ? product.images
     : product.thumbnailUrl
-      ? [{ id: '1', url: product.thumbnailUrl, alt: product.title, order: 0 }]
+      ? [{ id: '1', url: product.thumbnailUrl, alt: product.title, displayOrder: 0 }]
       : [];
 
   const currentImageUrl = images[selectedImage]?.url || product.thumbnailUrl;
@@ -254,12 +239,12 @@ export default function ProductDetailPage() {
                   </div>
                 )}
 
-                {/* File Size */}
-                {product.fileSize && (
+                {/* File Size - agora vem de availableFiles */}
+                {product.availableFiles && product.availableFiles.length > 0 && (
                   <div>
-                    <span className="text-sm text-foreground/60">File Size: </span>
+                    <span className="text-sm text-foreground/60">Files: </span>
                     <span className="text-sm font-medium">
-                      {(product.fileSize / 1024 / 1024).toFixed(2)} MB
+                      {product.availableFiles.length} arquivo(s) disponíveis
                     </span>
                   </div>
                 )}

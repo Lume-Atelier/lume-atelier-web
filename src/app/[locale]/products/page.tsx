@@ -1,34 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { ProductService } from '@/lib/api/services';
-import { ProductCard } from '@/components/ProductCard';
+import { useState } from 'react';
+import { ProductCard } from '@/components/features/product/ProductCard';
 import { Button } from '@/components/ui/Button';
-import type { Product, ProductFilter, ProductCategory } from '@/types';
+import { useProducts } from '@/hooks/queries';
+import type { ProductFilter, ProductCategory } from '@/types';
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
   const [filters, setFilters] = useState<ProductFilter>({});
 
-  useEffect(() => {
-    loadProducts();
-  }, [page, filters]);
-
-  const loadProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await ProductService.getProducts(filters, page, 20);
-      setProducts(response.products);
-      setTotalPages(response.totalPages);
-    } catch (error) {
-      console.error('Erro ao carregar produtos:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // React Query gerencia loading, error e cache automaticamente
+  const { data, isLoading, error } = useProducts(page, 20, filters);
+  const products = data?.content || [];
+  const totalPages = data?.totalPages || 0;
 
   const handleFilterChange = (newFilters: Partial<ProductFilter>) => {
     setFilters({ ...filters, ...newFilters });
@@ -207,12 +192,12 @@ export default function ProductsPage() {
               {/* Toolbar */}
               <div className="flex items-center justify-between mb-6">
                 <p className="text-sm text-foreground/60">
-                  {loading ? 'Carregando...' : `Mostrando ${products.length} produtos`}
+                  {isLoading ? 'Carregando...' : `Mostrando ${products.length} produtos`}
                 </p>
               </div>
 
               {/* Products Grid */}
-              {loading ? (
+              {isLoading ? (
                 <div className="text-center py-20">
                   <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-foreground/20 border-t-primary"></div>
                 </div>

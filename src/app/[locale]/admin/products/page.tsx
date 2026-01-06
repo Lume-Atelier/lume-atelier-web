@@ -1,20 +1,22 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { AdminService } from '@/lib/api/services';
-import { Button } from '@/components/ui/Button';
-import { DataTable, Column } from '@/components/admin/DataTable';
-import { ActionButtons } from '@/components/admin/ActionButtons';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { AdminService } from "@/lib/api/services";
+import { Button } from "@/components/ui/Button";
+import { DataTable, Column } from "@/components/admin/DataTable";
+import { ActionButtons } from "@/components/admin/ActionButtons";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
   const [page, setPage] = useState(0);
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [syncingProducts, setSyncingProducts] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [syncingProducts, setSyncingProducts] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Debounce para o campo de busca
   useEffect(() => {
@@ -39,10 +41,14 @@ export default function AdminProductsPage() {
         setSearchLoading(true);
       }
 
-      const response = await AdminService.getAllProducts(page, 20, debouncedSearch);
+      const response = await AdminService.getAllProducts(
+        page,
+        20,
+        debouncedSearch,
+      );
       setProducts(response.content);
     } catch (error) {
-      console.error('Erro ao carregar produtos:', error);
+      console.error("Erro ao carregar produtos:", error);
     } finally {
       setInitialLoading(false);
       setSearchLoading(false);
@@ -54,27 +60,29 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+    if (!confirm("Tem certeza que deseja excluir este produto?")) return;
 
     try {
       await AdminService.deleteProduct(id);
       loadProducts();
     } catch (error) {
-      console.error('Erro ao excluir produto:', error);
-      alert('Erro ao excluir produto');
+      console.error("Erro ao excluir produto:", error);
+      alert("Erro ao excluir produto");
     }
   };
 
   const handleSyncImages = async (id: string) => {
     try {
-      setSyncingProducts(prev => new Set(prev).add(id));
+      setSyncingProducts((prev) => new Set(prev).add(id));
       await AdminService.syncProductImages(id);
-      alert('Imagens sincronizadas com sucesso!');
+      alert("Imagens sincronizadas com sucesso!");
     } catch (error) {
-      console.error('Erro ao sincronizar imagens:', error);
-      alert('Erro ao sincronizar imagens. Verifique o console para mais detalhes.');
+      console.error("Erro ao sincronizar imagens:", error);
+      alert(
+        "Erro ao sincronizar imagens. Verifique o console para mais detalhes.",
+      );
     } finally {
-      setSyncingProducts(prev => {
+      setSyncingProducts((prev) => {
         const newSet = new Set(prev);
         newSet.delete(id);
         return newSet;
@@ -83,11 +91,15 @@ export default function AdminProductsPage() {
   };
 
   const handleSyncAllImages = async () => {
-    if (!confirm(`Deseja sincronizar imagens de TODOS os ${products.length} produtos desta página?\n\nIsso pode demorar alguns segundos.`)) {
+    if (
+      !confirm(
+        `Deseja sincronizar imagens de TODOS os ${products.length} produtos desta página?\n\nIsso pode demorar alguns segundos.`,
+      )
+    ) {
       return;
     }
 
-    const productIds = products.map(p => p.id);
+    const productIds = products.map((p) => p.id);
     setSyncingProducts(new Set(productIds));
 
     let successCount = 0;
@@ -104,25 +116,27 @@ export default function AdminProductsPage() {
     }
 
     setSyncingProducts(new Set());
-    alert(`Sincronização concluída!\n✅ Sucesso: ${successCount}\n❌ Erros: ${errorCount}`);
+    alert(
+      `Sincronização concluída!\n✅ Sucesso: ${successCount}\n❌ Erros: ${errorCount}`,
+    );
   };
 
   // Definição das colunas da tabela
   const columns: Column<any>[] = [
     {
-      key: 'title',
-      header: 'Título',
-      align: 'left',
+      key: "title",
+      header: "Título",
+      align: "left",
     },
     {
-      key: 'category',
-      header: 'Categoria',
-      align: 'left',
+      key: "category",
+      header: "Categoria",
+      align: "left",
     },
     {
-      key: 'priceInBRL',
-      header: 'Preço',
-      align: 'left',
+      key: "priceInBRL",
+      header: "Preço",
+      align: "left",
       render: (product) => (
         <span>
           {product.freeProduct ? (
@@ -136,17 +150,17 @@ export default function AdminProductsPage() {
       ),
     },
     {
-      key: 'status',
-      header: 'Status',
-      align: 'left',
+      key: "status",
+      header: "Status",
+      align: "left",
       render: (product) => (
         <span
           className={`px-2 py-1 rounded text-sm ${
-            product.status === 'PUBLISHED'
-              ? 'bg-green-500/20 text-green-500'
-              : product.status === 'DRAFT'
-              ? 'bg-yellow-500/20 text-yellow-500'
-              : 'bg-red-500/20 text-red-500'
+            product.status === "PUBLISHED"
+              ? "bg-green-500/20 text-green-500"
+              : product.status === "DRAFT"
+                ? "bg-yellow-500/20 text-yellow-500"
+                : "bg-red-500/20 text-red-500"
           }`}
         >
           {product.status}
@@ -154,9 +168,9 @@ export default function AdminProductsPage() {
       ),
     },
     {
-      key: 'actions',
-      header: 'Ações',
-      align: 'right',
+      key: "actions",
+      header: "Ações",
+      align: "right",
       render: (product) => (
         <div className="flex items-center justify-end gap-2">
           <button
@@ -165,10 +179,10 @@ export default function AdminProductsPage() {
             className="px-3 py-1.5 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             title="Sincronizar imagens do produto"
           >
-            {syncingProducts.has(product.id) ? '...' : '🔄'}
+            {syncingProducts.has(product.id) ? "..." : "🔄"}
           </button>
           <ActionButtons
-            editHref={`/admin/products/${product.id}/edit`}
+            editHref={`/products/${product.id}`}
             onDelete={() => handleDelete(product.id)}
           />
         </div>
@@ -196,7 +210,7 @@ export default function AdminProductsPage() {
             variant="outline"
             size="lg"
           >
-            {syncingProducts.size > 0 ? '🔄 Sincronizando...' : '🔄 Sync All'}
+            {syncingProducts.size > 0 ? "🔄 Sincronizando..." : "🔄 Sync All"}
           </Button>
           <Link href="/admin/products/new">
             <Button variant="outline" size="lg">

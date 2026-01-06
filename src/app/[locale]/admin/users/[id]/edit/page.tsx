@@ -71,7 +71,7 @@ export default function EditUserPage() {
       };
 
       await AdminService.updateUser(userId, updateData);
-      router.push('/admin/users');
+      router.push('/users');
     } catch (err: any) {
       console.error('Erro ao atualizar usuário:', err);
       setError(err.response?.data?.message || 'Erro ao atualizar usuário');

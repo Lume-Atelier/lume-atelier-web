@@ -1,0 +1,188 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "close": "Fechar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "clear": "Limpar",
+    "apply": "Aplicar",
+    "viewAll": "Ver Todos"
+  },
+  "nav": {
+    "home": "Início",
+    "products": "Produtos",
+    "categories": "Categorias",
+    "cart": "Carrinho",
+    "library": "Biblioteca",
+    "login": "Entrar",
+    "logout": "Sair",
+    "register": "Cadastrar",
+    "admin": "Admin",
+    "profile": "Perfil"
+  },
+  "home": {
+    "hero": {
+      "title": "Eleve o nível dos seus projetos com modelos 3D de Luxo",
+      "description": "Modelos 3D de alta gama com topologia impecável, prontos para elevar o realismo das suas cenas profissionais.",
+      "exploreModels": "Explorar Modelos",
+      "exploreCategories": "Explorar Categorias"
+    },
+    "compatible": {
+      "title": "Compatível com:"
+    },
+    "featured": {
+      "title": "Produtos em Destaque",
+      "description": "Explore nossa seleção de modelos mais populares",
+      "viewAll": "Ver Todos os Produtos",
+      "empty": "Nenhum produto em destaque no momento."
+    },
+    "categories": {
+      "title": "Categorias",
+      "description": "Encontre o modelo perfeito para seu projeto"
+    }
+  },
+  "products": {
+    "title": "Todos os Produtos",
+    "description": "Explore nossa coleção completa de assets 3D premium",
+    "showing": "Mostrando {count} produtos",
+    "filters": {
+      "title": "Filtros",
+      "category": "Categoria",
+      "all": "Todas",
+      "priceRange": "Faixa de Preço (R$)",
+      "min": "Mín",
+      "max": "Máx",
+      "features": "Features",
+      "rigged": "Rigged",
+      "animated": "Animated",
+      "pbr": "PBR",
+      "clearFilters": "Limpar Filtros"
+    },
+    "categories": {
+      "CHARACTERS": "Characters",
+      "ENVIRONMENTS": "Environments",
+      "PROPS": "Props",
+      "VEHICLES": "Vehicles",
+      "TEXTURES": "Textures",
+      "ANIMATIONS": "Animations"
+    },
+    "empty": {
+      "title": "Nenhum produto encontrado",
+      "description": "Tente ajustar os filtros ou limpar a busca."
+    },
+    "pagination": {
+      "page": "Página {current} de {total}",
+      "previous": "Anterior",
+      "next": "Próxima"
+    }
+  },
+  "productDetail": {
+    "addToCart": "Adicionar ao Carrinho",
+    "buyNow": "Comprar Agora",
+    "inCart": "No Carrinho",
+    "notFound": "Produto não encontrado",
+    "backToProducts": "Voltar para Produtos",
+    "description": "Descrição",
+    "showMore": "Mostrar Mais",
+    "showLess": "Mostrar Menos",
+    "technicalSpecs": "Especificações Técnicas",
+    "files": "Arquivos Inclusos",
+    "tags": "Tags"
+  },
+  "cart": {
+    "title": "Carrinho de Compras",
+    "empty": {
+      "title": "Seu carrinho está vazio",
+      "description": "Adicione produtos ao carrinho para continuar comprando",
+      "browseCatalog": "Explorar Catálogo"
+    },
+    "item": "Item",
+    "price": "Preço",
+    "action": "Ação",
+    "remove": "Remover",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "clearCart": "Limpar Carrinho",
+    "continueShopping": "Continuar Comprando",
+    "checkout": "Finalizar Compra"
+  },
+  "checkout": {
+    "title": "Finalizar Compra",
+    "summary": "Resumo do Pedido",
+    "paymentMethod": "Método de Pagamento",
+    "stripe": "Cartão de Crédito (Stripe)",
+    "paypal": "PayPal",
+    "pix": "PIX",
+    "processing": "Processando...",
+    "completePayment": "Finalizar Pagamento",
+    "success": {
+      "title": "Pedido Realizado com Sucesso!",
+      "description": "Seu pedido foi processado. Você pode acessar seus produtos na biblioteca.",
+      "orderId": "ID do Pedido",
+      "goToLibrary": "Ir para Biblioteca",
+      "continueShopping": "Continuar Comprando"
+    }
+  },
+  "library": {
+    "title": "Minha Biblioteca",
+    "description": "Acesse seus produtos comprados",
+    "empty": {
+      "title": "Sua biblioteca está vazia",
+      "description": "Você ainda não comprou nenhum produto",
+      "browseProducts": "Explorar Produtos"
+    },
+    "download": "Baixar",
+    "downloadCount": "Downloads: {current}/{max}",
+    "limitReached": "Limite de downloads atingido"
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar",
+      "email": "Email",
+      "password": "Senha",
+      "submit": "Entrar",
+      "noAccount": "Não tem conta?",
+      "register": "Cadastre-se"
+    },
+    "register": {
+      "title": "Cadastrar",
+      "name": "Nome",
+      "email": "Email",
+      "password": "Senha",
+      "confirmPassword": "Confirmar Senha",
+      "submit": "Cadastrar",
+      "hasAccount": "Já tem conta?",
+      "login": "Entrar"
+    }
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Produtos",
+    "orders": "Pedidos",
+    "users": "Usuários",
+    "stats": {
+      "totalProducts": "Total de Produtos",
+      "totalOrders": "Total de Pedidos",
+      "totalRevenue": "Receita Total",
+      "totalUsers": "Total de Usuários"
+    }
+  },
+  "errors": {
+    "generic": "Ocorreu um erro. Tente novamente.",
+    "network": "Erro de conexão. Verifique sua internet.",
+    "unauthorized": "Você precisa estar logado para acessar esta página.",
+    "forbidden": "Você não tem permissão para acessar esta página.",
+    "notFound": "Página não encontrada.",
+    "validation": "Preencha todos os campos corretamente."
+  }
+}
