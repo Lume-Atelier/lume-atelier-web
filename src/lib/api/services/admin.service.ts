@@ -129,10 +129,7 @@ export class AdminService {
 
     return apiClient.post<PresignedUrlResponse[]>(
         `/products/${productId}/files/upload-urls`,
-        {
-          productId,
-          files: filesData,
-        },
+        filesData
     );
   }
 

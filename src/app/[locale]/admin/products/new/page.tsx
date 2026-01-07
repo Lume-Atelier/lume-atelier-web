@@ -179,12 +179,6 @@ export default function NewProductPage() {
             <h1 className="text-4xl font-bold">Novo Produto</h1>
           </div>
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500 text-red-500 rounded">
-              {error}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Informações Básicas */}
             <div className="border border-foreground/20 rounded p-6">
@@ -548,6 +542,12 @@ export default function NewProductPage() {
               >
                 {uploading ? `Fazendo upload... ${overallProgress}%` : loading ? 'Criando produto...' : 'Criar Produto'}
               </Button>
+
+              {error && (
+                  <div className="mb-6 p-4 bg-red-500/10 border border-red-500 text-red-500 rounded">
+                    {error}
+                  </div>
+              )}
             </div>
           </form>
         </div>
