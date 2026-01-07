@@ -1,12 +1,12 @@
 import { apiClient } from "../client";
-import type {
+import {
   Product,
   User,
   ProductFile,
   PresignedUrlResponse,
   ConfirmUploadRequest,
   FileUploadRequest,
-  determineFileCategory,
+  determineFileCategory, PresignedUrlRequest,
 } from "@/types";
 
 interface PagedResponse<T> {
@@ -114,8 +114,8 @@ export class AdminService {
    * @returns Array com presigned URLs
    */
   static async generatePresignedUrls(
-    productId: string,
-    files: File[],
+      productId: string,
+      files: File[],
   ): Promise<PresignedUrlResponse[]> {
     // Importa dinamicamente para evitar erro de circular dependency
     const { determineFileCategory } = await import("@/types/productFile");
@@ -128,11 +128,11 @@ export class AdminService {
     }));
 
     return apiClient.post<PresignedUrlResponse[]>(
-      `/products/${productId}/files/upload-urls`,
-      {
-        productId,
-        files: filesData,
-      },
+        `/products/${productId}/files/upload-urls`,
+        {
+          productId,
+          files: filesData,
+        },
     );
   }
 
