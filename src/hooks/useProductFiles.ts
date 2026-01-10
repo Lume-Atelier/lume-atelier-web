@@ -112,6 +112,7 @@ export function useProductFiles() {
     });
 
     setFiles((prev) => [...prev, ...validatedFiles]);
+    // Sempre atualizar errors: limpa se não houver novos erros, ou seta os novos erros
     setErrors(newErrors);
 
     return validatedFiles;

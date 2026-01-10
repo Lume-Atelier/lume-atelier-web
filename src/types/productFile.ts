@@ -22,6 +22,7 @@ export interface ProductFile {
   category: FileCategory;
   displayOrder: number;
   uploadedAt: string; // ISO 8601
+  publicUrl?: string; // URL pública gerada pelo backend para acesso direto
   // r2Key: REMOVIDO - dado sensível, apenas backend
 }
 

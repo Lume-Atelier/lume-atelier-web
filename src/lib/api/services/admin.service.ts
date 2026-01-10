@@ -117,7 +117,6 @@ export class AdminService {
       productId: string,
       files: File[],
   ): Promise<PresignedUrlResponse[]> {
-    // Importa dinamicamente para evitar erro de circular dependency
     const { determineFileCategory } = await import("@/types/productFile");
 
     const filesData: FileUploadRequest[] = files.map((f) => ({

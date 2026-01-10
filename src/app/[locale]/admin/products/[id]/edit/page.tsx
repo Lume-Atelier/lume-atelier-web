@@ -149,8 +149,10 @@ export default function EditProductPage() {
         );
 
         if (thumbnailFile) {
-          const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://files.lumeatelier.com';
-          newThumbnailUrl = `${r2PublicUrl}/${thumbnailFile}`;
+          if (!thumbnailFile.publicUrl) {
+            throw new Error('Thumbnail não possui URL pública válida');
+          }
+          newThumbnailUrl = thumbnailFile.publicUrl; // URL pública gerada pelo backend
         }
 
         // Calcular tamanho total dos arquivos
@@ -185,6 +187,7 @@ export default function EditProductPage() {
       };
 
       await AdminService.updateProduct(productId, productData);
+      setError(''); // Garantir que não há erro antes de redirecionar
       router.push('/admin/products');
     } catch (err: any) {
       console.error('Erro ao atualizar produto:', err);

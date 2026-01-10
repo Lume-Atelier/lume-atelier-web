@@ -130,18 +130,20 @@ export default function NewProductPage() {
         throw new Error('Erro ao determinar thumbnail');
       }
 
+      if (!thumbnailFile.publicUrl) {
+        throw new Error('Thumbnail não possui URL pública válida');
+      }
+
       // 5. Atualizar produto com thumbnailUrl e fileSize total
       const totalFileSize = uploadedFiles.reduce((sum, f) => sum + f.fileSize, 0);
 
-      // TODO: Obter R2_PUBLIC_URL do env ou do backend
-      const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://files.lumeatelier.com';
-
       await AdminService.updateProduct(productId, {
-        thumbnailUrl: `${r2PublicUrl}/${thumbnailFile}`, // Usar r2Key para construir URL pública
+        thumbnailUrl: thumbnailFile.publicUrl, // URL pública gerada pelo backend
         fileSize: totalFileSize,
       });
 
       // 6. Redirecionar
+      setError(''); // Garantir que não há erro antes de redirecionar
       router.push('/admin/products');
     } catch (err: any) {
       console.error('Erro ao criar produto:', err);

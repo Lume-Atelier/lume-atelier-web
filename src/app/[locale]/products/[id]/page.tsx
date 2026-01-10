@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useCartStore } from '@/stores/cart-store';
 import { useProductDetail } from '@/hooks/queries';
 import { Button } from '@/components/ui/Button';
+import { ImageCarousel } from '@/components/ui/ImageCarousel';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -103,35 +104,12 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Thumbnails - Horizontal below main image */}
-            {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {images.map((image, index) => (
-                  <button
-                    key={image.id}
-                    onClick={() => setSelectedImage(index)}
-                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedImage === index
-                        ? 'border-primary'
-                        : 'border-foreground/20 hover:border-foreground/40'
-                    }`}
-                  >
-                    {image.url ? (
-                      <Image
-                        src={image.url}
-                        alt={image.alt}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-2xl bg-foreground/5">
-                        📦
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Galeria de Miniaturas - Carrossel Horizontal 16:9 */}
+            <ImageCarousel
+              images={images}
+              selectedIndex={selectedImage}
+              onSelectImage={setSelectedImage}
+            />
 
             {/* Description */}
             {product.description && (
