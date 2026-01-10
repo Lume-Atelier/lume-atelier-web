@@ -1,12 +1,16 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { useCartStore } from '@/stores/cart-store';
-import { useProductDetail } from '@/hooks/queries';
-import { Button } from '@/components/ui/Button';
-import { ImageCarousel } from '@/components/ui/ImageCarousel';
+import { useState, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import { useCartStore } from "@/stores/cart-store";
+import { useProductDetail } from "@/hooks/queries";
+import { Button } from "@/components/ui/Button";
+import { ImageCarousel } from "@/components/ui/ImageCarousel";
+
+// Constantes
+const DESCRIPTION_PREVIEW_LENGTH = 150;
+const MAIN_IMAGE_MAX_HEIGHT = "800px";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -19,7 +23,32 @@ export default function ProductDetailPage() {
   // React Query gerencia loading, error e cache automaticamente
   const { data: product, isLoading, error } = useProductDetail(productId);
 
-  const handleAddToCart = () => {
+  // Memoizar array de imagens
+  const images = useMemo(() => {
+    if (!product) return [];
+
+    if (product.images && product.images.length > 0) {
+      return product.images;
+    }
+
+    if (product.thumbnailUrl) {
+      return [
+        {
+          id: "1",
+          url: product.thumbnailUrl,
+          alt: product.title,
+          displayOrder: 0,
+        },
+      ];
+    }
+
+    return [];
+  }, [product]);
+
+  const currentImageUrl = images[selectedImage]?.url || product?.thumbnailUrl;
+
+  // Função auxiliar para adicionar item ao carrinho
+  const addProductToCart = () => {
     if (!product) return;
 
     addItem({
@@ -28,27 +57,22 @@ export default function ProductDetailPage() {
       thumbnailUrl: product.thumbnailUrl,
       priceInBRL: product.priceInBRL,
       displayPrice: product.priceInBRL,
-      displayCurrency: 'BRL',
+      displayCurrency: "BRL",
     });
+  };
+
+  const handleAddToCart = () => {
+    addProductToCart();
   };
 
   const handleBuyNow = () => {
-    if (!product) return;
-
-    addItem({
-      productId: product.id,
-      title: product.title,
-      thumbnailUrl: product.thumbnailUrl,
-      priceInBRL: product.priceInBRL,
-      displayPrice: product.priceInBRL,
-      displayCurrency: 'BRL',
-    });
-
-    router.push('/checkout');
+    addProductToCart();
+    router.push("/checkout");
   };
 
-  const isInCart = items.some(item => item.productId === productId);
+  const isInCart = items.some((item) => item.productId === productId);
 
+  // Estado de loading
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
@@ -57,12 +81,16 @@ export default function ProductDetailPage() {
     );
   }
 
-  if (!product) {
+  // Estado de erro
+  if (error) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold mb-4">Produto não encontrado</h1>
+        <h1 className="text-2xl font-bold mb-4">Erro ao carregar produto</h1>
+        <p className="text-foreground/70 mb-6">
+          Ocorreu um erro ao buscar as informações do produto.
+        </p>
         <Button
-          onClick={() => router.push('/products')}
+          onClick={() => router.push("/products")}
           variant="outline"
           size="lg"
         >
@@ -72,22 +100,34 @@ export default function ProductDetailPage() {
     );
   }
 
-  const images = product.images && product.images.length > 0
-    ? product.images
-    : product.thumbnailUrl
-      ? [{ id: '1', url: product.thumbnailUrl, alt: product.title, displayOrder: 0 }]
-      : [];
-
-  const currentImageUrl = images[selectedImage]?.url || product.thumbnailUrl;
+  // Produto não encontrado
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-2xl font-bold mb-4">Produto não encontrado</h1>
+        <Button
+          onClick={() => router.push("/products")}
+          variant="outline"
+          size="lg"
+        >
+          Voltar para Produtos
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Left Column - Gallery & Description */}
+        {/* Grid com proporção 65/35 */}
+        <div className="grid lg:grid-cols-[1.8fr_1fr] gap-6">
+          {/* Left Column - Gallery & Description (65% width) */}
           <div className="space-y-4">
-            {/* Main Image - Reduced size */}
-            <div className="relative w-full" style={{ aspectRatio: '4/3', maxHeight: '650px' }}>
+            {/* Main Image - Tamanho aumentado */}
+            <div
+              className="relative w-full"
+              style={{ aspectRatio: "4/3", maxHeight: MAIN_IMAGE_MAX_HEIGHT }}
+            >
               <div className="relative h-full bg-foreground/5 rounded-lg overflow-hidden">
                 {currentImageUrl ? (
                   <Image
@@ -95,21 +135,28 @@ export default function ProductDetailPage() {
                     alt={product.title}
                     fill
                     className="object-cover"
+                    priority
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-6xl">
+                  <div
+                    className="w-full h-full flex items-center justify-center text-6xl"
+                    role="img"
+                    aria-label="Imagem do produto não disponível"
+                  >
                     📦
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Galeria de Miniaturas - Carrossel Horizontal 16:9 */}
-            <ImageCarousel
-              images={images}
-              selectedIndex={selectedImage}
-              onSelectImage={setSelectedImage}
-            />
+            {/* Galeria de Miniaturas - Carrossel Horizontal */}
+            {images.length > 1 && (
+              <ImageCarousel
+                images={images}
+                selectedIndex={selectedImage}
+                onSelectImage={setSelectedImage}
+              />
+            )}
 
             {/* Description */}
             {product.description && (
@@ -119,14 +166,19 @@ export default function ProductDetailPage() {
                   {showFullDescription ? (
                     <p className="whitespace-pre-line">{product.description}</p>
                   ) : (
-                    <p className="line-clamp-3 whitespace-pre-line">{product.description}</p>
+                    <p className="line-clamp-3 whitespace-pre-line">
+                      {product.description}
+                    </p>
                   )}
-                  {product.description.length > 150 && (
+                  {product.description.length > DESCRIPTION_PREVIEW_LENGTH && (
                     <button
-                      onClick={() => setShowFullDescription(!showFullDescription)}
+                      onClick={() =>
+                        setShowFullDescription(!showFullDescription)
+                      }
                       className="text-primary mt-2 flex items-center gap-1 hover:underline"
+                      aria-expanded={showFullDescription}
                     >
-                      {showFullDescription ? 'leia menos ↑' : 'leia mais ↓'}
+                      {showFullDescription ? "leia menos ↑" : "leia mais ↓"}
                     </button>
                   )}
                 </div>
@@ -134,17 +186,20 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* Right Column - Product Info & Specs */}
+          {/* Right Column - Product Info & Specs (35% width) */}
           <div className="space-y-4">
-            {/* Title & Category - Boxed */}
-            {/* Price & Actions */}
+            {/* Title, Category & Price */}
             <div className="border border-foreground/20 rounded-lg p-6">
-              <span className="text-sm uppercase font-semibold text-primary">{product.category}</span>
+              <span className="text-sm uppercase font-semibold text-primary">
+                {product.category}
+              </span>
               <h1 className="text-3xl font-bold mt-2">{product.title}</h1>
               {product.shortDescription && (
-                  <p className="text-foreground/70 mt-3">{product.shortDescription}</p>
+                <p className="text-foreground/70 mt-3">
+                  {product.shortDescription}
+                </p>
               )}
-              <div className="text-3xl font-bold mb-4">
+              <div className="text-3xl font-bold my-4">
                 R$ {product.priceInBRL.toFixed(2)}
               </div>
               <div className="flex gap-3">
@@ -154,29 +209,37 @@ export default function ProductDetailPage() {
                   variant="outline"
                   size="lg"
                   className="flex-1"
+                  aria-label={
+                    isInCart
+                      ? "Produto já adicionado ao carrinho"
+                      : "Adicionar ao carrinho"
+                  }
                 >
-                  {isInCart ? 'Já está no carrinho' : 'add to card'}
+                  {isInCart ? "Já está no carrinho" : "Adicionar ao carrinho"}
                 </Button>
                 <Button
                   onClick={handleBuyNow}
                   variant="outline"
                   size="lg"
                   className="flex-1"
+                  aria-label="Comprar agora"
                 >
-                  comprar
+                  Comprar
                 </Button>
               </div>
             </div>
 
-            {/* Technical Specs - Compact */}
+            {/* Technical Specs */}
             <div className="border border-foreground/20 rounded-lg p-6">
               <div className="space-y-3">
                 {/* Format */}
                 {product.fileFormats && product.fileFormats.length > 0 && (
                   <div>
-                    <span className="text-sm text-foreground/60">Format: </span>
+                    <span className="text-sm text-foreground/60">
+                      Formato:{" "}
+                    </span>
                     <span className="text-sm font-medium">
-                      {product.fileFormats.join(', ').toLowerCase()}
+                      {product.fileFormats.join(", ").toLowerCase()}
                     </span>
                   </div>
                 )}
@@ -184,17 +247,23 @@ export default function ProductDetailPage() {
                 {/* Texture Size */}
                 {product.textureResolution && (
                   <div>
-                    <span className="text-sm text-foreground/60">Texture size: </span>
-                    <span className="text-sm font-medium">{product.textureResolution}</span>
+                    <span className="text-sm text-foreground/60">
+                      Textura:{" "}
+                    </span>
+                    <span className="text-sm font-medium">
+                      {product.textureResolution}
+                    </span>
                   </div>
                 )}
 
                 {/* UV Map */}
-                {product.uvMapped && (
+                {product.uvMapped !== undefined && (
                   <div>
-                    <span className="text-sm text-foreground/60">Uvmap: </span>
+                    <span className="text-sm text-foreground/60">
+                      Mapa UV:{" "}
+                    </span>
                     <span className="text-sm font-medium">
-                      {product.uvMapped ? 'Overlap' : 'Non-overlap'}
+                      {product.uvMapped ? "Sobreposição" : "Sem sobreposição"}
                     </span>
                   </div>
                 )}
@@ -202,9 +271,11 @@ export default function ProductDetailPage() {
                 {/* Software */}
                 {product.software && product.software.length > 0 && (
                   <div>
-                    <span className="text-sm text-foreground/60">Software: </span>
+                    <span className="text-sm text-foreground/60">
+                      Software:{" "}
+                    </span>
                     <span className="text-sm font-medium">
-                      {product.software.join(', ')}
+                      {product.software.join(", ")}
                     </span>
                   </div>
                 )}
@@ -212,20 +283,27 @@ export default function ProductDetailPage() {
                 {/* Poly Count */}
                 {product.polyCount && (
                   <div>
-                    <span className="text-sm text-foreground/60">Poly Count (Quad): </span>
-                    <span className="text-sm font-medium">{product.polyCount.toLocaleString()}</span>
-                  </div>
-                )}
-
-                {/* File Size - agora vem de availableFiles */}
-                {product.availableFiles && product.availableFiles.length > 0 && (
-                  <div>
-                    <span className="text-sm text-foreground/60">Files: </span>
+                    <span className="text-sm text-foreground/60">
+                      Polígonos (Quad):{" "}
+                    </span>
                     <span className="text-sm font-medium">
-                      {product.availableFiles.length} arquivo(s) disponíveis
+                      {product.polyCount.toLocaleString("pt-BR")}
                     </span>
                   </div>
                 )}
+
+                {/* File Size */}
+                {product.availableFiles &&
+                  product.availableFiles.length > 0 && (
+                    <div>
+                      <span className="text-sm text-foreground/60">
+                        Arquivos:{" "}
+                      </span>
+                      <span className="text-sm font-medium">
+                        {product.availableFiles.length} arquivo(s) disponíveis
+                      </span>
+                    </div>
+                  )}
 
                 {/* Additional Flags */}
                 {(product.rigged || product.animated || product.pbr) && (
@@ -238,7 +316,7 @@ export default function ProductDetailPage() {
                       )}
                       {product.animated && (
                         <span className="text-xs px-2 py-1 bg-foreground/10 rounded">
-                          Animated
+                          Animado
                         </span>
                       )}
                       {product.pbr && (
@@ -258,24 +336,21 @@ export default function ProductDetailPage() {
                 Compatível com:
               </h3>
               <div className="grid grid-cols-3 gap-4">
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">Blender</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">3ds Max</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">Maya</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">Cinema 4D</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">Corona</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">V-Ray</span>
-                </div>
+                {[
+                  "Blender",
+                  "3ds Max",
+                  "Maya",
+                  "Cinema 4D",
+                  "Corona",
+                  "V-Ray",
+                ].map((software) => (
+                  <div
+                    key={software}
+                    className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100"
+                  >
+                    <span className="text-sm font-semibold">{software}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
