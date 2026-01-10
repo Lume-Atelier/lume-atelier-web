@@ -1,22 +1,37 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { CategoryService } from '@/lib/api/services';
 
-// TODO: Buscar do backend quando estiver pronto
+/**
+ * Busca categorias do backend (Single Source of Truth)
+ */
 async function getCategories() {
-  // Placeholder - substituir por chamada real à API
-  return [
-    { slug: 'CHARACTERS', name: 'Characters', description: 'Personagens 3D rigged e animados', icon: '🧑', count: 0 },
-    { slug: 'ENVIRONMENTS', name: 'Environments', description: 'Ambientes e cenários completos', icon: '🏞️', count: 0 },
-    { slug: 'PROPS', name: 'Props', description: 'Objetos e adereços para suas cenas', icon: '📦', count: 0 },
-    { slug: 'VEHICLES', name: 'Vehicles', description: 'Veículos de todos os tipos', icon: '🚗', count: 0 },
-    { slug: 'ARCHITECTURE', name: 'Architecture', description: 'Arquitetura e construções', icon: '🏛️', count: 0 },
-    { slug: 'NATURE', name: 'Nature', description: 'Elementos naturais (árvores, plantas, rochas)', icon: '🌳', count: 0 },
-    { slug: 'FURNITURE', name: 'Furniture', description: 'Móveis e decoração', icon: '🪑', count: 0 },
-    { slug: 'TEXTURES', name: 'Textures', description: 'Texturas PBR de alta qualidade', icon: '🎨', count: 0 },
-    { slug: 'MATERIALS', name: 'Materials', description: 'Materiais procedurais', icon: '💎', count: 0 },
-    { slug: 'OTHER', name: 'Other', description: 'Outros assets 3D', icon: '✨', count: 0 },
-  ];
+  try {
+    const categories = await CategoryService.getCategories();
+
+    // Mapear ícones para cada categoria
+    const categoryIcons: Record<string, string> = {
+      CAMA_BANHO: '🛏️',
+      MESAS: '🪑',
+      ARMAZENAMENTOS: '🗄️',
+      ILUMINACAO: '💡',
+      DECORACAO: '🎨',
+      ASSENTOS: '🛋️',
+      ELETRODOMESTICO: '🔌',
+    };
+
+    return categories.map(cat => ({
+      slug: cat.value,
+      name: cat.label,
+      description: `Explore produtos de ${cat.label.toLowerCase()}`,
+      icon: categoryIcons[cat.value] || '📦',
+      count: 0, // TODO: Implementar contagem no backend
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar categorias:', error);
+    return [];
+  }
 }
 
 export default async function CategoriesPage() {

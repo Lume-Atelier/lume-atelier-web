@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AdminService } from '@/lib/api/services';
-import { ProductCategory, ProductStatus } from '@/types/product';
+import { AdminService, CategoryService } from '@/lib/api/services';
+import { ProductStatus } from '@/types/product';
+import type { Category } from '@/types/category';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/Button';
 import { useProductFiles } from '@/hooks/useProductFiles';
@@ -14,6 +15,8 @@ export default function NewProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -21,7 +24,7 @@ export default function NewProductPage() {
     shortDescription: '',
     priceInBRL: '',
     freeProduct: false,
-    category: ProductCategory.PROPS,
+    category: '', // Será preenchido quando categorias forem carregadas
     subcategory: '',
     tags: '',
     software: '',
@@ -38,6 +41,28 @@ export default function NewProductPage() {
     featured: false,
     status: ProductStatus.DRAFT,
   });
+
+  // Buscar categorias do backend
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const cats = await CategoryService.getCategories();
+        setCategories(cats);
+
+        // Definir primeira categoria como padrão
+        if (cats.length > 0) {
+          setFormData(prev => ({ ...prev, category: cats[0].value }));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar categorias:', error);
+        setError('Erro ao carregar categorias. Recarregue a página.');
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Hooks para gerenciamento de arquivos R2
   const {
@@ -250,11 +275,16 @@ export default function NewProductPage() {
                       value={formData.category}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary [&>option]:bg-white [&>option]:text-black"
+                      disabled={loadingCategories}
+                      className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary [&>option]:bg-white [&>option]:text-black disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {Object.values(ProductCategory).map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
+                      {loadingCategories ? (
+                        <option>Carregando categorias...</option>
+                      ) : (
+                        categories.map(cat => (
+                          <option key={cat.value} value={cat.value}>{cat.label}</option>
+                        ))
+                      )}
                     </select>
                   </div>
                 </div>

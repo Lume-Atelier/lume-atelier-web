@@ -14,7 +14,7 @@ export interface ProductSummaryDTO {
   title: string;
   shortDescription: string;
   priceInBRL: number;
-  category: ProductCategory;
+  category: string; // Valor do enum backend (ex: CAMA_BANHO, MESAS)
   status: ProductStatus;
   thumbnailUrl: string;
   featured: boolean;
@@ -48,7 +48,7 @@ export interface ProductDetailDTO {
   displayCurrency?: string;
 
   // Categorização
-  category: ProductCategory;
+  category: string; // Valor do enum backend (ex: CAMA_BANHO, MESAS)
   subcategory?: string;
   tags: string[];
 
@@ -146,23 +146,19 @@ export interface ProductImage {
   order: number;
 }
 
-export enum ProductCategory {
-  CHARACTERS = 'CHARACTERS',
-  ENVIRONMENTS = 'ENVIRONMENTS',
-  PROPS = 'PROPS',
-  VEHICLES = 'VEHICLES',
-  TEXTURES = 'TEXTURES',
-  ANIMATIONS = 'ANIMATIONS',
-}
-
 export enum ProductStatus {
   DRAFT = 'DRAFT',
   PUBLISHED = 'PUBLISHED',
   ARCHIVED = 'ARCHIVED',
 }
 
+/**
+ * Filtros para busca de produtos
+ * IMPORTANTE: category agora é string (valor do enum backend)
+ * Use CategoryService.getCategories() para obter valores válidos
+ */
 export interface ProductFilter {
-  category?: ProductCategory;
+  category?: string; // Valor do enum backend (ex: CAMA_BANHO, MESAS)
   software?: string[];
   formats?: string[];
   minPrice?: number;

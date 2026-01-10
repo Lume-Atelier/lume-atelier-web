@@ -5,3 +5,4 @@ export * from './library.service';
 export * from './checkout.service';
 export * from './currency.service';
 export * from './admin.service';
+export * from './category.service';

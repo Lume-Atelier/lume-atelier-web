@@ -1,14 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ProductCard } from '@/components/features/product/ProductCard';
 import { Button } from '@/components/ui/Button';
 import { useProducts } from '@/hooks/queries';
-import type { ProductFilter, ProductCategory } from '@/types';
+import { CategoryService } from '@/lib/api/services';
+import type { ProductFilter } from '@/types';
+import type { Category } from '@/types/category';
 
 export default function ProductsPage() {
   const [page, setPage] = useState(0);
   const [filters, setFilters] = useState<ProductFilter>({});
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  // Buscar categorias do backend ao montar o componente
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const cats = await CategoryService.getCategories();
+        setCategories(cats);
+      } catch (error) {
+        console.error('Erro ao buscar categorias:', error);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // React Query gerencia loading, error e cache automaticamente
   const { data, isLoading, error } = useProducts(page, 20, filters);
@@ -20,7 +40,7 @@ export default function ProductsPage() {
     setPage(0);
   };
 
-  const handleCategoryChange = (category: ProductCategory | undefined) => {
+  const handleCategoryChange = (category: string | undefined) => {
     handleFilterChange({ category });
   };
 
@@ -49,7 +69,7 @@ export default function ProductsPage() {
               <div className="bg-card border border-border rounded-lg p-6 sticky top-4">
                 <h2 className="font-semibold mb-4">Filtros</h2>
 
-                {/* Categoria */}
+                {/* Categoria - Dinâmico do backend */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium mb-2">Categoria</h3>
                   <div className="space-y-2 text-sm">
@@ -62,60 +82,21 @@ export default function ProductsPage() {
                       />
                       <span>Todas</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filters.category === 'CHARACTERS'}
-                        onChange={() => handleCategoryChange('CHARACTERS' as ProductCategory)}
-                      />
-                      <span>Characters</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filters.category === 'ENVIRONMENTS'}
-                        onChange={() => handleCategoryChange('ENVIRONMENTS' as ProductCategory)}
-                      />
-                      <span>Environments</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filters.category === 'VEHICLES'}
-                        onChange={() => handleCategoryChange('VEHICLES' as ProductCategory)}
-                      />
-                      <span>Vehicles</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filters.category === 'PROPS'}
-                        onChange={() => handleCategoryChange('PROPS' as ProductCategory)}
-                      />
-                      <span>Props</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filters.category === 'TEXTURES'}
-                        onChange={() => handleCategoryChange('TEXTURES' as ProductCategory)}
-                      />
-                      <span>Textures</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={filters.category === 'ANIMATIONS'}
-                        onChange={() => handleCategoryChange('ANIMATIONS' as ProductCategory)}
-                      />
-                      <span>Animations</span>
-                    </label>
+                    {loadingCategories ? (
+                      <div className="text-xs text-muted-foreground">Carregando categorias...</div>
+                    ) : (
+                      categories.map((cat) => (
+                        <label key={cat.value} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="category"
+                            checked={filters.category === cat.value}
+                            onChange={() => handleCategoryChange(cat.value)}
+                          />
+                          <span>{cat.label}</span>
+                        </label>
+                      ))
+                    )}
                   </div>
                 </div>
 
