@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { ProductCard } from '@/components/features/product/ProductCard';
-import { Button } from '@/components/ui/Button';
-import { useTheme } from '@/components/ThemeProvider';
-import { useFeaturedProducts } from '@/hooks/queries';
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ProductCard } from "@/components/features/product/ProductCard";
+import { Button } from "@/components/ui/Button";
+import { useTheme } from "@/components/ThemeProvider";
+import { useFeaturedProducts } from "@/hooks/queries";
 
 export default function HomePage() {
   const { theme } = useTheme();
@@ -21,7 +21,7 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    console.log('HomePage - Current theme:', theme);
+    console.log("HomePage - Current theme:", theme);
   }, [theme]);
 
   return (
@@ -30,50 +30,51 @@ export default function HomePage() {
       <section className="flex min-h-[80vh] flex-col items-center justify-center py-16 border-b border-foreground/20">
         <div className="container">
           <div className="text-center">
-          {/* Logo */}
-          <div className="mb-8">
-            {theme === 'dark' ? (
-              <Image
-                src="/assets/logo-dark.png"
-                alt="Lume Atelier"
-                width={600}
-                height={300}
-                className="mx-auto mb-8"
-                priority
-              />
-            ) : (
-              <Image
-                src="/assets/logo-light.png"
-                alt="Lume Atelier"
-                width={600}
-                height={300}
-                className="mx-auto mb-8"
-                priority
-              />
-            )}
-          </div>
+            {/* Logo */}
+            <div className="mb-8">
+              {theme === "dark" ? (
+                <Image
+                  src="/assets/logo-dark.png"
+                  alt="Lume Atelier"
+                  width={600}
+                  height={300}
+                  className="mx-auto mb-8"
+                  priority
+                />
+              ) : (
+                <Image
+                  src="/assets/logo-light.png"
+                  alt="Lume Atelier"
+                  width={600}
+                  height={300}
+                  className="mx-auto mb-8"
+                  priority
+                />
+              )}
+            </div>
 
-          {/* Description */}
-          <h1 className="text-2xl md:text-5xl font-bold mb-6">
-            Eleve o nível dos seus projetos com modelos 3D de Luxo
-          </h1>
-          <p className="text-lg text-foreground/70 mb-12 max-w-2xl mx-auto">
-            Modelos 3D de alta gama com topologia impecável, prontos para elevar o realismo das suas cenas profissionais.
-          </p>
+            {/* Description */}
+            <h1 className="text-2xl md:text-5xl font-bold mb-6">
+              Eleve o nível dos seus projetos com modelos 3D de Luxo
+            </h1>
+            <p className="text-lg text-foreground/70 mb-12 max-w-2xl mx-auto">
+              Modelos 3D de alta gama com topologia impecável, prontos para
+              elevar o realismo das suas cenas profissionais.
+            </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button
-              href="/products"
-              size="xl"
-              className="!bg-[#d4a955] dark:!text-black !text-black hover:!bg-[#c99944] !border-2 !border-[#d4a955]"
-            >
-              Explorar Modelos
-            </Button>
-            <Button href="/categories" variant="outline" size="xl">
-              Explorar Categorias
-            </Button>
-          </div>
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Button
+                href="/products"
+                size="xl"
+                className="!bg-[#d4a955] dark:!text-black !text-black hover:!bg-[#c99944] !border-2 !border-[#d4a955]"
+              >
+                Explorar Modelos
+              </Button>
+              <Button href="/categories" variant="outline" size="xl">
+                Explorar Categorias
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -150,9 +151,7 @@ export default function HomePage() {
       <section className="py-16 bg-card border-y border-foreground/20">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Categorias
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Categorias</h2>
             <p className="text-foreground/70">
               Encontre o modelo perfeito para seu projeto
             </p>
@@ -160,12 +159,12 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {[
-              { name: 'Characters', icon: '🧍' },
-              { name: 'Environments', icon: '🏞️' },
-              { name: 'Props', icon: '🔧' },
-              { name: 'Vehicles', icon: '🚗' },
-              { name: 'Textures', icon: '🎨' },
-              { name: 'Animations', icon: '🎬' },
+              { name: "Cama e Banho", icon: "🛏️" },
+              { name: "Mesas", icon: "🪑" },
+              { name: "Armazenamento", icon: "🗄️" },
+              { name: "Iluminação", icon: "💡" },
+              { name: "Decoração", icon: "🎨" },
+              { name: "Eletrodomésticos", icon: "🔌" },
             ].map((category) => (
               <Link
                 key={category.name}
@@ -186,7 +185,9 @@ export default function HomePage() {
       <section className="py-12">
         <div className="container">
           <div className="text-center">
-            <p className="text-sm text-foreground/60 mb-4">Idiomas disponíveis:</p>
+            <p className="text-sm text-foreground/60 mb-4">
+              Idiomas disponíveis:
+            </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <a href="/pt-BR">
                 <Button variant="muted" size="sm">
@@ -196,21 +197,6 @@ export default function HomePage() {
               <a href="/en-US">
                 <Button variant="muted" size="sm">
                   🇺🇸 English
-                </Button>
-              </a>
-              <a href="/es-ES">
-                <Button variant="muted" size="sm">
-                  🇪🇸 Español
-                </Button>
-              </a>
-              <a href="/fr-FR">
-                <Button variant="muted" size="sm">
-                  🇫🇷 Français
-                </Button>
-              </a>
-              <a href="/de-DE">
-                <Button variant="muted" size="sm">
-                  🇩🇪 Deutsch
                 </Button>
               </a>
             </div>

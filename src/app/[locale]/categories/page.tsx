@@ -1,7 +1,7 @@
-import { useTranslations } from 'next-intl';
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
-import { CategoryService } from '@/lib/api/services';
+import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { Button } from "@/components/ui/Button";
+import { CategoryService } from "@/lib/api/services";
 
 /**
  * Busca categorias do backend (Single Source of Truth)
@@ -12,24 +12,24 @@ async function getCategories() {
 
     // Mapear ícones para cada categoria
     const categoryIcons: Record<string, string> = {
-      CAMA_BANHO: '🛏️',
-      MESAS: '🪑',
-      ARMAZENAMENTOS: '🗄️',
-      ILUMINACAO: '💡',
-      DECORACAO: '🎨',
-      ASSENTOS: '🛋️',
-      ELETRODOMESTICO: '🔌',
+      CAMA_BANHO: "🛏️",
+      MESAS: "🪑",
+      ARMAZENAMENTO: "🗄️",
+      ILUMINACAO: "💡",
+      DECORACAO: "🎨",
+      ASSENTOS: "🛋️",
+      ELETRODOMESTICOS: "🔌",
     };
 
-    return categories.map(cat => ({
+    return categories.map((cat) => ({
       slug: cat.value,
       name: cat.label,
       description: `Explore produtos de ${cat.label.toLowerCase()}`,
-      icon: categoryIcons[cat.value] || '📦',
-      count: 0, // TODO: Implementar contagem no backend
+      icon: categoryIcons[cat.value] || "📦",
+      count: 0,
     }));
   } catch (error) {
-    console.error('Erro ao buscar categorias:', error);
+    console.error("Erro ao buscar categorias:", error);
     return [];
   }
 }
@@ -42,7 +42,7 @@ export default async function CategoriesPage() {
       {/* Header */}
       <section className="bg-card border-b border-border py-20">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-gold-gradient mb-4">
+          <h1 className="text-5xl md:text-6xl font-bold text-gold-gradient mb-4 pb-2">
             Categorias
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -58,7 +58,7 @@ export default async function CategoriesPage() {
             {categories.map((category) => (
               <Link
                 key={category.slug}
-                href={`/categories/${category.slug.toLowerCase()}`}
+                href={`/products?category=${category.name.toUpperCase()}`}
                 className="group"
               >
                 <div className="bg-card border border-border rounded-lg p-6 hover:border-primary transition-all hover:shadow-lg h-full">
@@ -91,9 +91,12 @@ export default async function CategoriesPage() {
       {/* CTA Section */}
       <section className="py-16 bg-card/50">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Não encontrou o que procura?</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            Não encontrou o que procura?
+          </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Use nossa busca avançada para encontrar exatamente o asset que você precisa
+            Use nossa busca avançada para encontrar exatamente o asset que você
+            precisa
           </p>
           <Link href="/products">
             <Button variant="outline" size="xl">
