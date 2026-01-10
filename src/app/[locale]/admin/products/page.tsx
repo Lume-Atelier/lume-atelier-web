@@ -124,7 +124,7 @@ export default function AdminProductsPage() {
       render: (product) => (
         <div className="flex items-center justify-end gap-2">
           <ActionButtons
-            editHref={`/products/${product.id}/edit`}
+            editHref={`/admin/products/${product.id}`}
             onDelete={() => handleDelete(product.id)}
           />
         </div>
