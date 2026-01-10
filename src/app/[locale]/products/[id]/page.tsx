@@ -132,7 +132,7 @@ export default function ProductDetailPage() {
 
             {/* Description - preenche espaço abaixo da galeria */}
             {product.description && (
-              <div className="border border-zinc-700 rounded-lg p-6 flex-grow">
+              <div className="bg-zinc-900/30 rounded-lg p-6 flex-grow">
                 <h3 className="font-semibold mb-3 text-lg text-white">
                   Descrição:
                 </h3>
@@ -162,7 +162,7 @@ export default function ProductDetailPage() {
           {/* RIGHT COLUMN (35%) - Informações do Produto */}
           <div className="flex flex-col gap-8">
             {/* Title, Category & Price */}
-            <div className="border border-zinc-700 rounded-lg p-6">
+            <div className="bg-zinc-900/30 rounded-lg p-6">
               <span className="text-sm uppercase font-semibold text-gold">
                 {product.category}
               </span>
@@ -203,7 +203,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Technical Specs */}
-            <div className="border border-zinc-700 rounded-lg p-6">
+            <div className="bg-zinc-900/30 rounded-lg p-6">
               <div className="space-y-3">
                 {/* Format */}
                 {product.fileFormats && product.fileFormats.length > 0 && (
@@ -296,7 +296,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Compatible Software */}
-            <div className="border border-zinc-700 rounded-lg p-6">
+            <div className="bg-zinc-900/30 rounded-lg p-6">
               <h3 className="text-sm font-semibold mb-4 text-zinc-400">
                 Compatível com:
               </h3>
