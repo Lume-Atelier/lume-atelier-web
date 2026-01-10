@@ -54,7 +54,7 @@ export function ImageCarousel({
       {showLeftArrow && (
         <button
           onClick={() => scroll("left")}
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 backdrop-blur-md bg-black/30 hover:bg-black/40 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 backdrop-blur-md bg-black/30 hover:bg-black/60 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
           aria-label="Anterior"
         >
           <ChevronLeft className="h-5 w-5" style={{ color: "#ceab67" }} />
@@ -93,7 +93,7 @@ export function ImageCarousel({
       {showRightArrow && (
         <button
           onClick={() => scroll("right")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 backdrop-blur-md bg-black/30 hover:bg-black/40 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 backdrop-blur-md bg-black/30 hover:bg-black/60 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
           aria-label="Próximo"
         >
           <ChevronRight className="h-5 w-5" style={{ color: "#ceab67" }} />
