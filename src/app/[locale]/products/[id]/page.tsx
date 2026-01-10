@@ -7,6 +7,7 @@ import { useCartStore } from "@/stores/cart-store";
 import { useProductDetail } from "@/hooks/queries";
 import { Button } from "@/components/ui/Button";
 import { ImageCarousel } from "@/components/ui/ImageCarousel";
+import { ShoppingCart } from "lucide-react";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -168,22 +169,23 @@ export default function ProductDetailPage() {
               </div>
               <div className="flex gap-3">
                 <Button
-                  onClick={handleAddToCart}
-                  disabled={isInCart}
-                  variant="outline"
-                  size="lg"
-                  className="flex-1"
-                >
-                  {isInCart ? "Já está no carrinho" : "add to card"}
-                </Button>
-                <Button
                   onClick={handleBuyNow}
                   variant="outline"
                   size="lg"
-                  className="flex-1"
+                  className="w-[70%] h-[56px] text-base font-bold tracking-wide"
                 >
-                  comprar
+                  COMPRAR
                 </Button>
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isInCart}
+                  className="w-[30%] h-[56px] inline-flex items-center justify-center border-2 border-gold text-gold bg-transparent hover:bg-gold/10 hover:border-gold-light hover:scale-105 active:scale-110 active:animate-bounce disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-black"
+                  title={
+                    isInCart ? "Já está no carrinho" : "Adicionar ao carrinho"
+                  }
+                >
+                  <ShoppingCart className="w-6 h-6" />
+                </button>
               </div>
             </div>
 
