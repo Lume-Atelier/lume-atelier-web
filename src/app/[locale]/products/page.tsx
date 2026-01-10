@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { ProductCard } from '@/components/features/product/ProductCard';
-import { Button } from '@/components/ui/Button';
-import { useProducts } from '@/hooks/queries';
-import { CategoryService } from '@/lib/api/services';
-import type { ProductFilter } from '@/types';
-import type { Category } from '@/types/category';
+import { useState, useEffect } from "react";
+import { ProductCard } from "@/components/features/product/ProductCard";
+import { Button } from "@/components/ui/Button";
+import { useProducts } from "@/hooks/queries";
+import { CategoryService } from "@/lib/api/services";
+import type { ProductFilter } from "@/types";
+import type { Category } from "@/types/category";
 
 export default function ProductsPage() {
   const [page, setPage] = useState(0);
@@ -21,7 +21,7 @@ export default function ProductsPage() {
         const cats = await CategoryService.getCategories();
         setCategories(cats);
       } catch (error) {
-        console.error('Erro ao buscar categorias:', error);
+        console.error("Erro ao buscar categorias:", error);
       } finally {
         setLoadingCategories(false);
       }
@@ -44,7 +44,10 @@ export default function ProductsPage() {
     handleFilterChange({ category });
   };
 
-  const handleFeatureChange = (feature: 'rigged' | 'animated' | 'pbr', value: boolean) => {
+  const handleFeatureChange = (
+    feature: "rigged" | "animated" | "pbr",
+    value: boolean,
+  ) => {
     handleFilterChange({ [feature]: value });
   };
 
@@ -55,7 +58,7 @@ export default function ProductsPage() {
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold mb-2">Todos os Produtos</h1>
           <p className="text-foreground/60">
-            Explore nossa coleção completa de assets 3D premium
+            Explore nossa coleção completa de modelos 3D premium
           </p>
         </div>
       </section>
@@ -83,10 +86,15 @@ export default function ProductsPage() {
                       <span>Todas</span>
                     </label>
                     {loadingCategories ? (
-                      <div className="text-xs text-muted-foreground">Carregando categorias...</div>
+                      <div className="text-xs text-muted-foreground">
+                        Carregando categorias...
+                      </div>
                     ) : (
                       categories.map((cat) => (
-                        <label key={cat.value} className="flex items-center gap-2 cursor-pointer">
+                        <label
+                          key={cat.value}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
                           <input
                             type="radio"
                             name="category"
@@ -102,21 +110,31 @@ export default function ProductsPage() {
 
                 {/* Preço */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-medium mb-2">Faixa de Preço (R$)</h3>
+                  <h3 className="text-sm font-medium mb-2">
+                    Faixa de Preço (R$)
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex gap-2 text-sm">
                       <input
                         type="number"
                         placeholder="Mín"
-                        value={filters.minPrice || ''}
-                        onChange={(e) => handleFilterChange({ minPrice: Number(e.target.value) || undefined })}
+                        value={filters.minPrice || ""}
+                        onChange={(e) =>
+                          handleFilterChange({
+                            minPrice: Number(e.target.value) || undefined,
+                          })
+                        }
                         className="w-full px-3 py-2 bg-background border border-border rounded"
                       />
                       <input
                         type="number"
                         placeholder="Máx"
-                        value={filters.maxPrice || ''}
-                        onChange={(e) => handleFilterChange({ maxPrice: Number(e.target.value) || undefined })}
+                        value={filters.maxPrice || ""}
+                        onChange={(e) =>
+                          handleFilterChange({
+                            maxPrice: Number(e.target.value) || undefined,
+                          })
+                        }
                         className="w-full px-3 py-2 bg-background border border-border rounded"
                       />
                     </div>
@@ -131,7 +149,9 @@ export default function ProductsPage() {
                       <input
                         type="checkbox"
                         checked={filters.rigged || false}
-                        onChange={(e) => handleFeatureChange('rigged', e.target.checked)}
+                        onChange={(e) =>
+                          handleFeatureChange("rigged", e.target.checked)
+                        }
                       />
                       <span>Rigged</span>
                     </label>
@@ -139,7 +159,9 @@ export default function ProductsPage() {
                       <input
                         type="checkbox"
                         checked={filters.animated || false}
-                        onChange={(e) => handleFeatureChange('animated', e.target.checked)}
+                        onChange={(e) =>
+                          handleFeatureChange("animated", e.target.checked)
+                        }
                       />
                       <span>Animated</span>
                     </label>
@@ -147,7 +169,9 @@ export default function ProductsPage() {
                       <input
                         type="checkbox"
                         checked={filters.pbr || false}
-                        onChange={(e) => handleFeatureChange('pbr', e.target.checked)}
+                        onChange={(e) =>
+                          handleFeatureChange("pbr", e.target.checked)
+                        }
                       />
                       <span>PBR</span>
                     </label>
@@ -173,7 +197,9 @@ export default function ProductsPage() {
               {/* Toolbar */}
               <div className="flex items-center justify-between mb-6">
                 <p className="text-sm text-foreground/60">
-                  {isLoading ? 'Carregando...' : `Mostrando ${products.length} produtos`}
+                  {isLoading
+                    ? "Carregando..."
+                    : `Mostrando ${products.length} produtos`}
                 </p>
               </div>
 
@@ -185,7 +211,9 @@ export default function ProductsPage() {
               ) : products.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20">
                   <div className="text-6xl mb-4">📦</div>
-                  <h3 className="text-xl font-semibold mb-2">Nenhum produto encontrado</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    Nenhum produto encontrado
+                  </h3>
                   <p className="text-foreground/60 text-center max-w-md mb-6">
                     Tente ajustar os filtros ou limpar a busca.
                   </p>
@@ -213,7 +241,9 @@ export default function ProductsPage() {
                         Página {page + 1} de {totalPages}
                       </span>
                       <Button
-                        onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                        onClick={() =>
+                          setPage(Math.min(totalPages - 1, page + 1))
+                        }
                         disabled={page >= totalPages - 1}
                         variant="outline"
                         size="md"

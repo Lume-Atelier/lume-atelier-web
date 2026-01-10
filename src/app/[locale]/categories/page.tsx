@@ -46,7 +46,7 @@ export default async function CategoriesPage() {
             Categorias
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Explore nossa coleção de assets 3D organizados por categoria
+            Explore nossa coleção de modelos 3D organizados por categoria
           </p>
         </div>
       </section>
