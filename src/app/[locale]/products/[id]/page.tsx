@@ -173,7 +173,7 @@ export default function ProductDetailPage() {
                 <button
                   onClick={handleAddToCart}
                   disabled={isInCart}
-                  className="w-[25%] h-[56px] inline-flex items-center justify-center border-2 border-primary/40 text-primary bg-transparent hover:bg-primary/10 transition-all rounded-lg disabled:opacity-50"
+                  className="w-[30%] h-[56px] inline-flex items-center justify-center border-2 border-gold text-gold bg-transparent hover:bg-gold/10 hover:border-gold-light hover:scale-105 active:scale-110 active:animate-bounce disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-black"
                   title={
                     isInCart ? "Já está no carrinho" : "Adicionar ao carrinho"
                   }
