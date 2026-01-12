@@ -156,7 +156,7 @@ export default function ProductDetailPage() {
               <h1 className="text-2xl font-bold mt-2 leading-tight">
                 {product.title}
               </h1>
-              <h3 className="text-2xl font-bold mt-2 leading-tight">
+              <h3 className="text-base font-normal mt-2 leading-relaxed text-foreground/70">
                 {product.shortDescription}
               </h3>
 
@@ -214,10 +214,8 @@ export default function ProductDetailPage() {
                   </div>
                 )}
                 {product.polyCount && (
-                  <div className="flex justify-between">
-                    <span className="text-foreground/50 border-b border-foreground/5 pb-2">
-                      Poly Count:
-                    </span>
+                  <div className="flex justify-between border-b border-foreground/5 pb-2">
+                    <span className="text-foreground/50">Poly Count:</span>
                     <span className="font-medium">
                       {product.polyCount.toLocaleString()}
                     </span>
