@@ -18,20 +18,29 @@ export function Header() {
     await logout();
   };
 
+  // Verifica se está na homepage para deixar transparente
+  const isHomepage = pathname === '/' || pathname === '/pt-BR' || pathname === '/en-US';
+  const headerClasses = isHomepage
+    ? "h-16 bg-transparent border-b border-white/10 sticky top-0 backdrop-blur-sm z-50"
+    : "h-16 bg-background border-b border-foreground/20 sticky top-0 backdrop-blur z-50";
+
+  const textClasses = isHomepage ? "text-white" : "text-foreground";
+
   return (
-      <header className="h-16 bg-background border-b border-foreground/20 sticky top-0 backdrop-blur z-50">
+      <header className={headerClasses}>
         <div className="h-full max-w-[1400px] mx-auto px-6">
           <div className="h-full grid grid-cols-3 items-center">
             {/* Logo - Esquerda */}
             <div className="flex items-center justify-start">
               <Link href="/" className="flex items-center">
-                {theme === 'dark' ? (
+                {/* Na homepage sempre usa logo branco (dark), em outras páginas segue o tema */}
+                {isHomepage || theme === 'dark' ? (
                     <Image
                         src="/assets/logo-dark.png"
                         alt="Lume Atelier"
                         width={240}
                         height={60}
-                        className="h-12 w-auto object-contain"
+                        className="h-12 w-auto object-contain drop-shadow-lg"
                         priority
                     />
                 ) : (
@@ -51,7 +60,7 @@ export function Header() {
             <nav className="hidden md:flex items-center justify-center gap-8">
               <Link
                   href="/products"
-                  className={`text-foreground hover:text-primary transition ${
+                  className={`${textClasses} hover:text-primary transition ${
                       pathname?.includes('/products') ? 'text-primary' : ''
                   }`}
               >
@@ -59,7 +68,7 @@ export function Header() {
               </Link>
               <Link
                   href="/categories"
-                  className={`text-foreground hover:text-primary transition ${
+                  className={`${textClasses} hover:text-primary transition ${
                       pathname?.includes('/categories') ? 'text-primary' : ''
                   }`}
               >
@@ -72,7 +81,7 @@ export function Header() {
               {/* Theme Toggle */}
               <button
                   onClick={toggleTheme}
-                  className="relative group hover:text-primary transition-all duration-300 hover:scale-110"
+                  className={`relative group hover:text-primary transition-all duration-300 hover:scale-110 ${textClasses}`}
                   aria-label="Toggle theme"
               >
                 {theme === 'dark' ? (
@@ -109,7 +118,7 @@ export function Header() {
               </button>
 
               {/* Cart */}
-              <Link href="/cart" className="relative p-2 hover:text-primary transition">
+              <Link href="/cart" className={`relative p-2 hover:text-primary transition ${textClasses}`}>
                 <svg
                     className="w-5 h-5"
                     fill="none"
