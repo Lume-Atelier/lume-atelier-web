@@ -91,8 +91,8 @@ export default function ProductDetailPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-[52fr_48fr] gap-8">
+      <div className="max-w-[1600] mx-auto px-6 py-8">
+        <div className="grid lg:grid-cols-[1fr_400px] gap-12 items-start">
           {/* Left Column - Gallery & Description */}
           <div className="space-y-4">
             {/* Main Image - Reduced size */}
