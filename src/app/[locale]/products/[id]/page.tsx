@@ -171,7 +171,7 @@ export default function ProductDetailPage() {
                   size="lg"
                   className="w-[75%] h-[56px] text-base font-bold tracking-wide border-2"
                 >
-                  COMPRAR
+                  Comprar
                 </Button>
                 <button
                   onClick={handleAddToCart}
@@ -189,6 +189,38 @@ export default function ProductDetailPage() {
             {/* Especificações Técnicas */}
             <div className="border border-foreground/20 rounded-lg p-6 text-sm">
               <div className="space-y-3">
+                {/* Informações de Licença - DESTAQUE */}
+                <div className="border-b-2 border-primary/30 pb-4 mb-4">
+                  <div className="flex items-start gap-2 mb-2">
+                    <span className="text-foreground/90 font-bold">Licença:</span>
+                    <div className="flex-1 text-foreground/80 font-semibold">
+                      Uso Comercial Não Redistribuível
+                    </div>
+                  </div>
+                  <ul className="space-y-1.5 ml-6 text-xs text-foreground/70">
+                    <li className="flex items-start">
+                      <span className="mr-2">✓</span>
+                      <span>Você pode usar este asset em seus projetos comerciais</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">✗</span>
+                      <span>Não é permitido revender ou redistribuir este asset</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">🔄</span>
+                      <span className="font-semibold text-foreground/80">
+                        Royalty-Free: Uso ilimitado após a compra avulsa
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2">⚠️</span>
+                      <span className="italic">
+                        Assets adquiridos por assinatura: requerem renovação para manter acesso ao download
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+
                 {product.fileFormats && product.fileFormats.length > 0 && (
                   <div className="flex justify-between border-b border-foreground/5 pb-2">
                     <span className="text-foreground/50">Format:</span>
