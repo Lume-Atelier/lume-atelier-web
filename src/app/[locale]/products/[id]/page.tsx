@@ -89,7 +89,7 @@ export default function ProductDetailPage() {
     <main className="min-h-screen bg-background text-foreground">
       <div className="max-w-[1600px] w-[95%] mx-auto px-6 py-8">
         {/* Layout Grid: Coluna esquerda flexível, Coluna direita fixa em 420px */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1000px_420px] gap-8 items-start">
           {/* COLUNA ESQUERDA (Imagens e Descrição) */}
           <div className="space-y-6">
             {/* Imagem Principal com Aspect Ratio 4:3 (Padrão 3D) */}
@@ -192,7 +192,9 @@ export default function ProductDetailPage() {
                 {/* Informações de Licença - DESTAQUE */}
                 <div className="border-b-2 border-primary/30 pb-4 mb-4">
                   <div className="flex items-start gap-2 mb-2">
-                    <span className="text-foreground/90 font-bold">Licença:</span>
+                    <span className="text-foreground/90 font-bold">
+                      Licença:
+                    </span>
                     <div className="flex-1 text-foreground/80 font-semibold">
                       Uso Comercial Não Redistribuível
                     </div>
@@ -200,11 +202,15 @@ export default function ProductDetailPage() {
                   <ul className="space-y-1.5 ml-6 text-xs text-foreground/70">
                     <li className="flex items-start">
                       <span className="mr-2">✓</span>
-                      <span>Você pode usar este asset em seus projetos comerciais</span>
+                      <span>
+                        Você pode usar este asset em seus projetos comerciais
+                      </span>
                     </li>
                     <li className="flex items-start">
                       <span className="mr-2">✗</span>
-                      <span>Não é permitido revender ou redistribuir este asset</span>
+                      <span>
+                        Não é permitido revender ou redistribuir este asset
+                      </span>
                     </li>
                     <li className="flex items-start">
                       <span className="mr-2">🔄</span>
@@ -215,7 +221,8 @@ export default function ProductDetailPage() {
                     <li className="flex items-start">
                       <span className="mr-2">⚠️</span>
                       <span className="italic">
-                        Assets adquiridos por assinatura: requerem renovação para manter acesso ao download
+                        Assets adquiridos por assinatura: requerem renovação
+                        para manter acesso ao download
                       </span>
                     </li>
                   </ul>
