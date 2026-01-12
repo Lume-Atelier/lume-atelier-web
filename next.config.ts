@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
     unoptimized: true, // Desabilita otimização para imagens do backend
+    // Qualidades de imagem permitidas (necessário para Next.js 16+)
+    qualities: [75, 85, 90, 95, 100],
   },
 
   // Headers de segurança
