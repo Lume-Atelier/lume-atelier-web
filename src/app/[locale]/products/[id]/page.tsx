@@ -17,12 +17,10 @@ export default function ProductDetailPage() {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { addItem, items } = useCartStore();
 
-  // React Query gerencia loading, error e cache automaticamente
   const { data: product, isLoading, error } = useProductDetail(productId);
 
   const handleAddToCart = () => {
     if (!product) return;
-
     addItem({
       productId: product.id,
       title: product.title,
@@ -35,7 +33,6 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = () => {
     if (!product) return;
-
     addItem({
       productId: product.id,
       title: product.title,
@@ -44,7 +41,6 @@ export default function ProductDetailPage() {
       displayPrice: product.priceInBRL,
       displayCurrency: "BRL",
     });
-
     router.push("/checkout");
   };
 
@@ -90,57 +86,57 @@ export default function ProductDetailPage() {
   const currentImageUrl = images[selectedImage]?.url || product.thumbnailUrl;
 
   return (
-    <main className="min-h-screen bg-background">
-      <div className="max-w-[95%] mx-auto px-6 py-8">
-        <div className="grid lg:grid-cols-[52fr_48fr] gap-8">
-          {/* Left Column - Gallery & Description */}
-          <div className="space-y-4">
-            {/* Main Image - Reduced size */}
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="max-w-[1600px] w-[95%] mx-auto px-6 py-8">
+        {/* Layout Grid: Coluna esquerda flexível, Coluna direita fixa em 420px */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 items-start">
+          {/* COLUNA ESQUERDA (Imagens e Descrição) */}
+          <div className="space-y-6">
+            {/* Imagem Principal com Aspect Ratio 4:3 (Padrão 3D) */}
             <div
-              className="relative w-full"
-              style={{ aspectRatio: "4/3", maxHeight: "600px" }}
+              className="relative w-full bg-foreground/5 rounded-lg overflow-hidden border border-foreground/10"
+              style={{ aspectRatio: "4/3", maxHeight: "650px" }}
             >
-              <div className="relative h-full bg-foreground/5 rounded-lg overflow-hidden">
-                {currentImageUrl ? (
-                  <Image
-                    src={currentImageUrl}
-                    alt={product.title}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-6xl">
-                    📦
-                  </div>
-                )}
-              </div>
+              {currentImageUrl ? (
+                <Image
+                  src={currentImageUrl}
+                  alt={product.title}
+                  fill
+                  priority
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-6xl">
+                  📦
+                </div>
+              )}
             </div>
 
-            {/* Galeria de Miniaturas - Carrossel Horizontal 16:9 */}
+            {/* Carrossel de Miniaturas */}
             <ImageCarousel
               images={images}
               selectedIndex={selectedImage}
               onSelectImage={setSelectedImage}
             />
 
-            {/* Description */}
+            {/* Descrição detalhada */}
             {product.description && (
               <div className="border border-foreground/20 rounded-lg p-6">
                 <h3 className="font-semibold mb-3 text-lg">Descrição:</h3>
-                <div className="text-foreground/80">
+                <div className="text-foreground/80 text-sm leading-relaxed">
                   {showFullDescription ? (
                     <p className="whitespace-pre-line">{product.description}</p>
                   ) : (
-                    <p className="line-clamp-3 whitespace-pre-line">
+                    <p className="line-clamp-4 whitespace-pre-line">
                       {product.description}
                     </p>
                   )}
-                  {product.description.length > 150 && (
+                  {product.description.length > 200 && (
                     <button
                       onClick={() =>
                         setShowFullDescription(!showFullDescription)
                       }
-                      className="text-primary mt-2 flex items-center gap-1 hover:underline"
+                      className="text-primary mt-2 flex items-center gap-1 hover:underline font-medium"
                     >
                       {showFullDescription ? "leia menos ↑" : "leia mais ↓"}
                     </button>
@@ -149,36 +145,35 @@ export default function ProductDetailPage() {
               </div>
             )}
           </div>
-          {/* Right Column - Product Info & Specs */}
-          <div className="space-y-4">
-            {/* Title & Category - Boxed */}
-            {/* Price & Actions */}
-            <div className="border border-foreground/20 rounded-lg p-6">
-              <span className="text-sm uppercase font-semibold text-primary">
+
+          {/* COLUNA DIREITA (Informações e Checkout) */}
+          <aside className="space-y-4 lg:sticky lg:top-8">
+            {/* Box de Preço e Compra */}
+            <div className="border border-foreground/20 rounded-lg p-6 bg-card">
+              <span className="text-xs uppercase font-bold text-primary tracking-widest">
                 {product.category}
               </span>
-              <h1 className="text-3xl font-bold mt-2">{product.title}</h1>
-              {product.shortDescription && (
-                <p className="text-foreground/70 mt-3">
-                  {product.shortDescription}
-                </p>
-              )}
-              <div className="text-3xl font-bold mb-4">
+              <h1 className="text-2xl font-bold mt-2 leading-tight">
+                {product.title}
+              </h1>
+
+              <div className="text-3xl font-bold my-6">
                 R$ {product.priceInBRL.toFixed(2)}
               </div>
+
               <div className="flex gap-3">
                 <Button
                   onClick={handleBuyNow}
                   variant="outline"
                   size="lg"
-                  className="w-[70%] h-[56px] text-base font-bold tracking-wide"
+                  className="w-[75%] h-[56px] text-base font-bold tracking-wide border-2"
                 >
                   COMPRAR
                 </Button>
                 <button
                   onClick={handleAddToCart}
                   disabled={isInCart}
-                  className="w-[30%] h-[56px] inline-flex items-center justify-center border-2 border-gold text-gold bg-transparent hover:bg-gold/10 hover:border-gold-light hover:scale-105 active:scale-110 active:animate-bounce disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-black"
+                  className="w-[25%] h-[56px] inline-flex items-center justify-center border-2 border-primary/40 text-primary bg-transparent hover:bg-primary/10 transition-all rounded-lg disabled:opacity-50"
                   title={
                     isInCart ? "Já está no carrinho" : "Adicionar ao carrinho"
                   }
@@ -188,130 +183,89 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Technical Specs - Compact */}
-            <div className="border border-foreground/20 rounded-lg p-6">
+            {/* Especificações Técnicas */}
+            <div className="border border-foreground/20 rounded-lg p-6 text-sm">
               <div className="space-y-3">
-                {/* Format */}
                 {product.fileFormats && product.fileFormats.length > 0 && (
-                  <div>
-                    <span className="text-sm text-foreground/60">Format: </span>
-                    <span className="text-sm font-medium">
+                  <div className="flex justify-between border-b border-foreground/5 pb-2">
+                    <span className="text-foreground/50">Format:</span>
+                    <span className="font-medium">
                       {product.fileFormats.join(", ").toLowerCase()}
                     </span>
                   </div>
                 )}
-
-                {/* Texture Size */}
                 {product.textureResolution && (
-                  <div>
-                    <span className="text-sm text-foreground/60">
-                      Texture size:{" "}
-                    </span>
-                    <span className="text-sm font-medium">
+                  <div className="flex justify-between border-b border-foreground/5 pb-2">
+                    <span className="text-foreground/50">Texture size:</span>
+                    <span className="font-medium">
                       {product.textureResolution}
                     </span>
                   </div>
                 )}
-
-                {/* UV Map */}
-                {product.uvMapped && (
-                  <div>
-                    <span className="text-sm text-foreground/60">Uvmap: </span>
-                    <span className="text-sm font-medium">
+                {product.uvMapped !== undefined && (
+                  <div className="flex justify-between border-b border-foreground/5 pb-2">
+                    <span className="text-foreground/50">Uvmap:</span>
+                    <span className="font-medium">
                       {product.uvMapped ? "Overlap" : "Non-overlap"}
                     </span>
                   </div>
                 )}
-
-                {/* Software */}
-                {product.software && product.software.length > 0 && (
-                  <div>
-                    <span className="text-sm text-foreground/60">
-                      Software:{" "}
-                    </span>
-                    <span className="text-sm font-medium">
-                      {product.software.join(", ")}
-                    </span>
-                  </div>
-                )}
-
-                {/* Poly Count */}
                 {product.polyCount && (
-                  <div>
-                    <span className="text-sm text-foreground/60">
-                      Poly Count (Quad):{" "}
-                    </span>
-                    <span className="text-sm font-medium">
+                  <div className="flex justify-between">
+                    <span className="text-foreground/50">Poly Count:</span>
+                    <span className="font-medium">
                       {product.polyCount.toLocaleString()}
                     </span>
                   </div>
                 )}
 
-                {/* File Size - agora vem de availableFiles */}
-                {product.availableFiles &&
-                  product.availableFiles.length > 0 && (
-                    <div>
-                      <span className="text-sm text-foreground/60">
-                        Files:{" "}
-                      </span>
-                      <span className="text-sm font-medium">
-                        {product.availableFiles.length} arquivo(s) disponíveis
-                      </span>
-                    </div>
-                  )}
-
-                {/* Additional Flags */}
+                {/* Atributos Extras */}
                 {(product.rigged || product.animated || product.pbr) && (
-                  <div className="pt-2 border-t border-foreground/10">
-                    <div className="flex flex-wrap gap-2">
-                      {product.rigged && (
-                        <span className="text-xs px-2 py-1 bg-foreground/10 rounded">
-                          Rigged
-                        </span>
-                      )}
-                      {product.animated && (
-                        <span className="text-xs px-2 py-1 bg-foreground/10 rounded">
-                          Animated
-                        </span>
-                      )}
-                      {product.pbr && (
-                        <span className="text-xs px-2 py-1 bg-foreground/10 rounded">
-                          PBR
-                        </span>
-                      )}
-                    </div>
+                  <div className="pt-4 mt-2 flex flex-wrap gap-2">
+                    {product.rigged && (
+                      <span className="text-[10px] font-bold px-2 py-1 bg-primary/10 text-primary rounded">
+                        RIGGED
+                      </span>
+                    )}
+                    {product.animated && (
+                      <span className="text-[10px] font-bold px-2 py-1 bg-primary/10 text-primary rounded">
+                        ANIMATED
+                      </span>
+                    )}
+                    {product.pbr && (
+                      <span className="text-[10px] font-bold px-2 py-1 bg-primary/10 text-primary rounded">
+                        PBR
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Compatible Software */}
-            <div className="border border-foreground/20 rounded-lg p-6">
-              <h3 className="text-sm font-semibold mb-4 text-foreground/80">
+            {/* Compatibilidade de Software */}
+            <div className="border border-foreground/20 rounded-lg p-6 bg-card/30">
+              <h3 className="text-[10px] font-bold mb-4 opacity-50 uppercase tracking-[0.2em]">
                 Compatível com:
               </h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">Blender</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">3ds Max</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">Maya</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">Cinema 4D</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">Corona</span>
-                </div>
-                <div className="flex items-center justify-center p-2 hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
-                  <span className="text-sm font-semibold">V-Ray</span>
-                </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  "Blender",
+                  "3ds Max",
+                  "Maya",
+                  "Cinema 4D",
+                  "Corona",
+                  "V-Ray",
+                ].map((s) => (
+                  <div
+                    key={s}
+                    className="flex items-center justify-center p-2 rounded border border-foreground/10 bg-foreground/5 text-[9px] font-bold uppercase tracking-tight text-center"
+                  >
+                    {s}
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </main>
