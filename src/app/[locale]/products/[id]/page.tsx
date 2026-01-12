@@ -91,14 +91,14 @@ export default function ProductDetailPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="max-w-[1600] mx-auto px-6 py-8">
-        <div className="grid lg:grid-cols-[1fr_400px] gap-12 items-start">
+      <div className="max-w-[95%] mx-auto px-6 py-8">
+        <div className="grid lg:grid-cols-[60fr_40fr] gap-8">
           {/* Left Column - Gallery & Description */}
           <div className="space-y-4">
             {/* Main Image - Reduced size */}
             <div
               className="relative w-full"
-              style={{ aspectRatio: "4/3", maxHeight: "650px" }}
+              style={{ aspectRatio: "4/3", maxHeight: "500px" }}
             >
               <div className="relative h-full bg-foreground/5 rounded-lg overflow-hidden">
                 {currentImageUrl ? (
