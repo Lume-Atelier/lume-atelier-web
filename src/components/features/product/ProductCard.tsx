@@ -8,57 +8,57 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   return (
-    <Link href={`/products/${product.id}`}>
-      <div className="group border border-foreground/20 rounded-lg overflow-hidden hover:border-primary transition-all">
-        {/* Image */}
-        <div className="relative aspect-square bg-foreground/5">
+    <Link href={`/products/${product.id}`} className="block">
+      <div className="group relative overflow-hidden rounded-lg bg-foreground/5">
+        {/* Image Container - Proporção 4:3 (padrão para renders 3D) */}
+        <div className="relative w-full" style={{ aspectRatio: '4/3' }}>
           {product.thumbnailUrl ? (
             <Image
               src={product.thumbnailUrl}
               alt={product.title}
               fill
-              className="object-cover group-hover:scale-105 transition-transform"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-6xl">
               📦
             </div>
           )}
+
+          {/* Featured Badge - Sempre visível quando aplicável */}
           {product.featured && (
-            <span className="absolute top-2 right-2 bg-primary text-background px-2 py-1 text-xs font-bold rounded">
-              FEATURED
+            <span className="absolute top-3 right-3 bg-primary text-black px-3 py-1 text-[10px] font-bold rounded-md uppercase tracking-wider z-10">
+              Destaque
             </span>
           )}
-        </div>
 
-        {/* Content */}
-        <div className="p-4">
-          <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors line-clamp-1">
-            {product.title}
-          </h3>
-          <p className="text-sm text-foreground/60 mb-3 line-clamp-2">
-            {product.shortDescription}
-          </p>
+          {/* Hover Overlay - Estilo Behance */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out">
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+              {/* Title */}
+              <h3 className="text-lg font-bold mb-2 line-clamp-2 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                {product.title}
+              </h3>
 
-          {/* Features - ProductSummaryDTO não tem rigged/animated/pbr */}
-          {/* Essas informações aparecem apenas em ProductDetailDTO */}
-          <div className="flex gap-2 mb-3 text-xs">
-            {product.freeProduct && (
-              <span className="px-2 py-1 bg-green-500/20 text-green-600 rounded">FREE</span>
-            )}
-            {product.featured && (
-              <span className="px-2 py-1 bg-primary/20 text-primary rounded">DESTAQUE</span>
-            )}
-          </div>
+              {/* Price and Category */}
+              <div className="flex items-center justify-between transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                <span className="text-2xl font-bold text-primary">
+                  R$ {product.priceInBRL.toFixed(2)}
+                </span>
+                <span className="text-xs text-white/70 uppercase tracking-wider">
+                  {product.category}
+                </span>
+              </div>
 
-          {/* Price */}
-          <div className="flex items-center justify-between">
-            <span className="text-xl font-bold text-primary">
-              R$ {product.priceInBRL.toFixed(2)}
-            </span>
-            <span className="text-xs text-foreground/60">
-              {product.category}
-            </span>
+              {/* Free Badge */}
+              {product.freeProduct && (
+                <div className="mt-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-100">
+                  <span className="inline-block px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-md uppercase">
+                    Grátis
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
