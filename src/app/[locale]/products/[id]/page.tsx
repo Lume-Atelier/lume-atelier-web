@@ -87,12 +87,9 @@ export default function ProductDetailPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <div className="max-w-[1600px] w-[95%] mx-auto px-6 py-8">
-        {/* Layout Grid: Coluna esquerda flexível, Coluna direita fixa em 420px */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1000px_420px] gap-8 items-start">
-          {/* COLUNA ESQUERDA (Imagens e Descrição) */}
-          <div className="space-y-6">
-            {/* Imagem Principal com Aspect Ratio 4:3 (Padrão 3D) */}
+      <div className="w-full mx-auto px-6 py-8 flex justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[1000px_420px] gap-8 items-start justify-center">
+          <div className="space-y-6 w-full">
             <div
               className="relative w-full bg-foreground/5 rounded-lg overflow-hidden border border-foreground/10"
               style={{ aspectRatio: "4/3", maxHeight: "650px" }}
