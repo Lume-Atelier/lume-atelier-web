@@ -98,7 +98,7 @@ export default function ProductDetailPage() {
             {/* Main Image - Reduced size */}
             <div
               className="relative w-full"
-              style={{ aspectRatio: "4/3", maxHeight: "500px" }}
+              style={{ aspectRatio: "4/3", maxHeight: "550px" }}
             >
               <div className="relative h-full bg-foreground/5 rounded-lg overflow-hidden">
                 {currentImageUrl ? (
