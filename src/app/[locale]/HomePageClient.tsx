@@ -30,9 +30,9 @@ export function HomePageClient({ heroBackgrounds }: HomePageClientProps) {
   }, [theme]);
 
   return (
-    <main className="min-h-screen bg-background -mt-[80px]">
+    <main className="min-h-screen bg-background">
       {/* Hero Section com Background Dinâmico - Tela cheia desde o topo */}
-      <section className="relative flex h-screen flex-col items-center justify-center overflow-hidden pt-[80px]">
+      <section className="relative flex h-screen flex-col items-center justify-center overflow-hidden -mt-[64px] pt-[64px]">
         {/* Background rotativo */}
         <HeroBackground images={heroBackgrounds} />
 

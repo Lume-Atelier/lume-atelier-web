@@ -59,6 +59,10 @@
     @apply border-border;
   }
 
+  html {
+    overflow-y: scroll; /* Força scrollbar sempre visível para evitar shift horizontal */
+  }
+
   html,
   body {
     @apply bg-background text-foreground antialiased;
