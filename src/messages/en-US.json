@@ -53,6 +53,7 @@
   "checkout": {
     "title": "Checkout",
     "paymentMethod": "Payment Method",
+    "paymentInfo": "Payment securely processed via Stripe (Credit Card)",
     "completePurchase": "Complete Purchase",
     "processing": "Processing payment...",
     "success": "Purchase completed successfully!",

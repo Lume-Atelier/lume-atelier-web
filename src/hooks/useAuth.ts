@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthService } from '@/lib/api/services';
+import { decodeJWT, isTokenExpired, extractUserId, extractRole } from '@/lib/jwt';
 
 interface User {
   id: string;
@@ -18,43 +19,81 @@ export function useAuth(requireAuth: boolean = false) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const authenticated = AuthService.isAuthenticated();
-      setIsAuthenticated(authenticated);
+      // Verifica se há token no localStorage
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 
-      if (authenticated) {
-        // Decodifica o JWT para extrair a role
-        try {
-          const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
-          if (token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(
-              atob(base64)
-                .split('')
-                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-            );
-            const payload = JSON.parse(jsonPayload);
+      if (!token) {
+        // Sem token = não autenticado
+        setIsAuthenticated(false);
+        setUser(null);
+        setIsAdmin(false);
 
-
-            const userData: User = {
-              id: payload.id || payload.sub || '',
-              email: payload.email || '',
-              name: payload.name || '',
-              role: payload.role || 'CUSTOMER',
-            };
-
-            setUser(userData);
-            setIsAdmin(userData.role === 'ADMIN');
-          }
-        } catch (error) {
-          console.error('Erro ao decodificar token:', error);
+        if (requireAuth) {
+          router.push('/login');
         }
+
+        setLoading(false);
+        return;
       }
 
-      if (requireAuth && !authenticated) {
+      // CRÍTICO: Verifica se o token está expirado ANTES de usar
+      if (isTokenExpired(token)) {
+        console.log('Token expired in useAuth - automatic logout');
+
+        // Faz logout automático (remove token e cookie)
+        await AuthService.logout();
+
+        setIsAuthenticated(false);
+        setUser(null);
+        setIsAdmin(false);
+
+        // Redireciona para login
         router.push('/login');
+        setLoading(false);
         return;
+      }
+
+      // Token válido - decodifica para extrair dados do usuário
+      try {
+        const payload = decodeJWT(token);
+
+        if (!payload) {
+          // Token inválido (não pode ser decodificado)
+          console.error('Invalid token format');
+          await AuthService.logout();
+          setIsAuthenticated(false);
+          setUser(null);
+          setIsAdmin(false);
+
+          if (requireAuth) {
+            router.push('/login');
+          }
+
+          setLoading(false);
+          return;
+        }
+
+        // Constrói objeto de usuário a partir do payload
+        const userData: User = {
+          id: extractUserId(token) || '',
+          email: payload.email || '',
+          name: payload.name || '',
+          role: extractRole(token) || 'CUSTOMER',
+        };
+
+        setUser(userData);
+        setIsAuthenticated(true);
+        setIsAdmin(userData.role === 'ADMIN');
+      } catch (error) {
+        console.error('Error processing token:', error);
+        await AuthService.logout();
+        setIsAuthenticated(false);
+        setUser(null);
+        setIsAdmin(false);
+
+        if (requireAuth) {
+          router.push('/login');
+        }
       }
 
       setLoading(false);

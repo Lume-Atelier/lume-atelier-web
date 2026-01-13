@@ -120,9 +120,7 @@
     "title": "Checkout",
     "summary": "Order Summary",
     "paymentMethod": "Payment Method",
-    "stripe": "Credit Card (Stripe)",
-    "paypal": "PayPal",
-    "pix": "PIX",
+    "paymentInfo": "Payment securely processed via Stripe (Credit Card)",
     "processing": "Processing...",
     "completePayment": "Complete Payment",
     "success": {

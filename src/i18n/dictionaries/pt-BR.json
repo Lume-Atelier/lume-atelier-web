@@ -120,9 +120,7 @@
     "title": "Finalizar Compra",
     "summary": "Resumo do Pedido",
     "paymentMethod": "Método de Pagamento",
-    "stripe": "Cartão de Crédito (Stripe)",
-    "paypal": "PayPal",
-    "pix": "PIX",
+    "paymentInfo": "Pagamento processado de forma segura via Stripe (Cartão de Crédito)",
     "processing": "Processando...",
     "completePayment": "Finalizar Pagamento",
     "success": {

@@ -78,10 +78,7 @@ export enum OrderStatus {
 }
 
 export enum PaymentMethod {
-  CREDIT_CARD = 'CREDIT_CARD',
-  PIX = 'PIX',
-  PAYPAL = 'PAYPAL',
-  FREE = 'FREE',
+  STRIPE = 'STRIPE',
 }
 
 /**
@@ -99,7 +96,7 @@ export interface Order {
   items: CartItem[];
   totalAmountBRL: number;
   status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
-  paymentMethod: 'STRIPE' | 'PAYPAL' | 'PIX';
+  paymentMethod: 'STRIPE';
   createdAt: string;
   updatedAt: string;
 }

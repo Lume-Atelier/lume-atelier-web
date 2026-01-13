@@ -53,6 +53,7 @@
   "checkout": {
     "title": "Zur Kasse",
     "paymentMethod": "Zahlungsmethode",
+    "paymentInfo": "Zahlung wird sicher über Stripe verarbeitet (Kreditkarte)",
     "completePurchase": "Kauf Abschließen",
     "processing": "Zahlung wird verarbeitet...",
     "success": "Kauf erfolgreich abgeschlossen!",

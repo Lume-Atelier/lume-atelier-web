@@ -35,7 +35,7 @@ export class CheckoutService {
    */
   static async createOrder(
     productIds: string[],
-    paymentMethod: 'STRIPE' | 'PAYPAL' | 'PIX' = 'STRIPE'
+    paymentMethod: 'STRIPE' = 'STRIPE'
   ): Promise<Order> {
     return apiClient.post<Order>('/orders', {
       productIds,

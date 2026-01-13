@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
+import { isTokenExpired } from '../jwt';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api-lume-atelier';
 
@@ -22,7 +23,28 @@ class ApiClient {
     this.client.interceptors.request.use(
       (config) => {
         const token = this.getAuthToken();
+
+        // CRÍTICO: Verifica se o token está expirado ANTES de fazer a request
+        // EXCEÇÃO: Permite /auth/refresh mesmo com token expirado (para renovação)
         if (token) {
+          const isRefreshEndpoint = config.url?.includes('/auth/refresh');
+
+          if (isTokenExpired(token) && !isRefreshEndpoint) {
+            console.log('Token expired in API client - automatic logout before request');
+
+            // Faz logout automático
+            this.clearAuthToken();
+
+            // Redireciona para login
+            if (typeof window !== 'undefined') {
+              window.location.href = '/login';
+            }
+
+            // Cancela a requisição
+            return Promise.reject(new Error('Token expired'));
+          }
+
+          // Token válido (ou endpoint de refresh) - adiciona ao header
           config.headers.Authorization = `Bearer ${token}`;
         }
 
@@ -33,6 +55,7 @@ class ApiClient {
         }
 
         if (config.data instanceof FormData) {
+          // Deixa o browser definir o Content-Type com boundary para FormData
         } else if (!config.headers['Content-Type']) {
           // Para outros tipos de dados, definir como JSON
           config.headers['Content-Type'] = 'application/json';

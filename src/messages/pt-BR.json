@@ -53,6 +53,7 @@
   "checkout": {
     "title": "Finalizar Compra",
     "paymentMethod": "Método de Pagamento",
+    "paymentInfo": "Pagamento processado de forma segura via Stripe (Cartão de Crédito)",
     "completePurchase": "Concluir Compra",
     "processing": "Processando pagamento...",
     "success": "Compra realizada com sucesso!",

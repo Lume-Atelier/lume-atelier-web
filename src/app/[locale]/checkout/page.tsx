@@ -12,7 +12,6 @@ export default function CheckoutPage() {
   const t = useTranslations('checkout');
   const router = useRouter();
   const { items, total, clearCart } = useCartStore();
-  const [paymentMethod, setPaymentMethod] = useState<'STRIPE' | 'PAYPAL' | 'PIX'>('STRIPE');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -22,7 +21,7 @@ export default function CheckoutPage() {
       setError('');
 
       const productIds = items.map(item => item.productId);
-      const order = await CheckoutService.createOrder(productIds, paymentMethod);
+      const order = await CheckoutService.createOrder(productIds, 'STRIPE');
 
       clearCart();
       router.push(`/checkout/success?orderId=${order.id}`);
@@ -72,44 +71,11 @@ export default function CheckoutPage() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold mb-4">Método de Pagamento</h2>
-
-          <div className="space-y-4 mb-8">
-            <label className="flex items-center gap-3 p-4 border-2 border-foreground/20 rounded cursor-pointer hover:border-primary transition-colors">
-              <input
-                type="radio"
-                name="payment"
-                value="STRIPE"
-                checked={paymentMethod === 'STRIPE'}
-                onChange={(e) => setPaymentMethod(e.target.value as any)}
-                className="accent-primary"
-              />
-              <span>Cartão de Crédito (Stripe)</span>
-            </label>
-
-            <label className="flex items-center gap-3 p-4 border-2 border-foreground/20 rounded cursor-pointer hover:border-primary transition-colors">
-              <input
-                type="radio"
-                name="payment"
-                value="PAYPAL"
-                checked={paymentMethod === 'PAYPAL'}
-                onChange={(e) => setPaymentMethod(e.target.value as any)}
-                className="accent-primary"
-              />
-              <span>PayPal</span>
-            </label>
-
-            <label className="flex items-center gap-3 p-4 border-2 border-foreground/20 rounded cursor-pointer hover:border-primary transition-colors">
-              <input
-                type="radio"
-                name="payment"
-                value="PIX"
-                checked={paymentMethod === 'PIX'}
-                onChange={(e) => setPaymentMethod(e.target.value as any)}
-                className="accent-primary"
-              />
-              <span>PIX</span>
-            </label>
+          <h2 className="text-2xl font-bold mb-4">Pagamento</h2>
+          <div className="p-4 border-2 border-foreground/20 rounded mb-8">
+            <p className="text-foreground/70">
+              Pagamento processado de forma segura via Stripe (Cartão de Crédito)
+            </p>
           </div>
 
           {error && (
