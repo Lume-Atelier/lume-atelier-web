@@ -89,6 +89,15 @@ export interface CreateOrderRequest {
   paymentMethod: PaymentMethod;
 }
 
+/**
+ * Resposta ao criar um checkout (pedido + URL do Stripe)
+ * Corresponde a CheckoutSessionResponse no backend
+ */
+export interface CheckoutSessionResponse {
+  order: OrderDTO;
+  checkoutUrl: string;
+}
+
 // DEPRECATED: Use OrderDTO
 export interface Order {
   id: string;

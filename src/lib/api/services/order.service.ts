@@ -2,6 +2,7 @@ import { apiClient } from '../client';
 import type {
   OrderDTO,
   CreateOrderRequest,
+  CheckoutSessionResponse,
   ProductDownloadDTO,
   PageResponse,
 } from '@/types';
@@ -14,12 +15,12 @@ import type {
  */
 export class OrderService {
   /**
-   * Cria um novo pedido
+   * Cria um novo pedido e gera URL de checkout do Stripe
    * @param request - Dados do pedido (productIds, paymentMethod)
-   * @returns OrderDTO com status PENDING
+   * @returns CheckoutSessionResponse com OrderDTO e checkoutUrl
    */
-  static async createOrder(request: CreateOrderRequest): Promise<OrderDTO> {
-    return apiClient.post<OrderDTO>('/orders', request);
+  static async createOrder(request: CreateOrderRequest): Promise<CheckoutSessionResponse> {
+    return apiClient.post<CheckoutSessionResponse>('/orders', request);
   }
 
   /**

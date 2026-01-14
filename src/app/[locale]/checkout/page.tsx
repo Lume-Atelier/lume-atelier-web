@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCartStore } from '@/stores';
-import { CheckoutService } from '@/lib/api/services';
+import { OrderService } from '@/lib/api/services';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 
@@ -21,10 +21,18 @@ export default function CheckoutPage() {
       setError('');
 
       const productIds = items.map(item => item.productId);
-      const order = await CheckoutService.createOrder(productIds, 'STRIPE');
 
+      // Criar pedido e obter URL de checkout do Stripe
+      const response = await OrderService.createOrder({
+        productIds,
+        paymentMethod: 'STRIPE',
+      });
+
+      // Limpar carrinho
       clearCart();
-      router.push(`/checkout/success?orderId=${order.id}`);
+
+      // Redirecionar para página de pagamento do Stripe
+      window.location.href = response.checkoutUrl;
     } catch (err: any) {
       setError(err.message || 'Erro ao processar pagamento');
     } finally {
