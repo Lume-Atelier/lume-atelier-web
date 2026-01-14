@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCartStore } from '@/stores';
 import { OrderService } from '@/lib/api/services';
+import { PaymentMethod } from '@/types';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 
@@ -25,7 +26,7 @@ export default function CheckoutPage() {
       // Criar pedido e obter URL de checkout do Stripe
       const response = await OrderService.createOrder({
         productIds,
-        paymentMethod: 'STRIPE',
+        paymentMethod: PaymentMethod.STRIPE,
       });
 
       // Limpar carrinho
