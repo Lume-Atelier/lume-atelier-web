@@ -26,11 +26,11 @@ export interface CheckoutSession {
 }
 
 export enum CheckoutStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  PAID = 'PAID',
-  FAILED = 'FAILED',
-  CANCELLED = 'CANCELLED',
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  PAID = "PAID",
+  FAILED = "FAILED",
+  CANCELLED = "CANCELLED",
 }
 
 export interface PaymentIntent {
@@ -70,15 +70,16 @@ export interface OrderItemDTO {
 }
 
 export enum OrderStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED',
-  CANCELLED = 'CANCELLED',
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+  CANCELLED = "CANCELLED",
+  REFUNDED = "REFUNDED",
 }
 
 export enum PaymentMethod {
-  STRIPE = 'STRIPE',
+  STRIPE = "STRIPE",
 }
 
 /**
@@ -104,8 +105,8 @@ export interface Order {
   userId: string;
   items: CartItem[];
   totalAmountBRL: number;
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
-  paymentMethod: 'STRIPE';
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | "CANCELLED";
+  paymentMethod: "STRIPE";
   createdAt: string;
   updatedAt: string;
 }

@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/Button';
 export default function CheckoutPage() {
   const t = useTranslations('checkout');
   const router = useRouter();
-  const { items, total, clearCart } = useCartStore();
+  const { items, total } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,18 +23,31 @@ export default function CheckoutPage() {
 
       const productIds = items.map(item => item.productId);
 
+      console.log('🛒 Criando pedido com produtos:', productIds);
+
       // Criar pedido e obter URL de checkout do Stripe
       const response = await OrderService.createOrder({
         productIds,
         paymentMethod: PaymentMethod.STRIPE,
       });
 
-      // Limpar carrinho
-      clearCart();
+      console.log('✅ Resposta do backend:', response);
+
+      if (!response.checkoutUrl) {
+        console.error('❌ checkoutUrl está vazio na resposta:', response);
+        throw new Error('URL de pagamento não gerada. Verifique as configurações do Stripe.');
+      }
+
+      console.log('🔗 Redirecionando para:', response.checkoutUrl);
+
+      // IMPORTANTE: NÃO limpar carrinho aqui!
+      // O carrinho só deve ser limpo APÓS confirmação do webhook
+      // A limpeza acontece na página de sucesso quando status = COMPLETED
 
       // Redirecionar para página de pagamento do Stripe
       window.location.href = response.checkoutUrl;
     } catch (err: any) {
+      console.error('❌ Erro ao criar pedido:', err);
       setError(err.message || 'Erro ao processar pagamento');
     } finally {
       setLoading(false);
