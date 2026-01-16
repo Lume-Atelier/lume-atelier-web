@@ -1,44 +1,44 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { AdminService, CategoryService } from '@/lib/api/services';
-import { ProductStatus } from '@/types/product';
-import type { Category } from '@/types/category';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { Button } from '@/components/ui/Button';
-import { Select } from '@/components/ui/Select';
-import { useProductFiles } from '@/hooks/useProductFiles';
-import { useR2Upload } from '@/hooks/useR2Upload';
-import { ProductFileManager } from '@/components/admin/ProductFileManager';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { AdminService, CategoryService } from "@/lib/api/services";
+import { ProductStatus } from "@/types/product";
+import type { Category } from "@/types/category";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Button } from "@/components/ui/Button";
+import { Select } from "@/components/ui/Select";
+import { useProductFiles } from "@/hooks/useProductFiles";
+import { useR2Upload } from "@/hooks/useR2Upload";
+import { ProductFileManager } from "@/components/admin/ProductFileManager";
 
 export default function NewProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    shortDescription: '',
-    priceInBRL: '',
+    title: "",
+    description: "",
+    shortDescription: "",
+    priceInBRL: "",
     freeProduct: false,
-    category: '', // Será preenchido quando categorias forem carregadas
-    subcategory: '',
-    tags: '',
-    software: '',
-    fileFormats: '',
-    polyCount: '',
-    textureResolution: '',
+    category: "", // Será preenchido quando categorias forem carregadas
+    subcategory: "",
+    tags: "",
+    software: "",
+    fileFormats: "",
+    polyCount: "",
+    textureResolution: "",
     rigged: false,
     animated: false,
     pbr: false,
     uvMapped: false,
-    dimensionsWidth: '',
-    dimensionsHeight: '',
-    dimensionsDepth: '',
+    dimensionsWidth: "",
+    dimensionsHeight: "",
+    dimensionsDepth: "",
     featured: false,
     status: ProductStatus.DRAFT,
   });
@@ -52,11 +52,11 @@ export default function NewProductPage() {
 
         // Definir primeira categoria como padrão
         if (cats.length > 0) {
-          setFormData(prev => ({ ...prev, category: cats[0].value }));
+          setFormData((prev) => ({ ...prev, category: cats[0].value }));
         }
       } catch (error) {
-        console.error('Erro ao buscar categorias:', error);
-        setError('Erro ao carregar categorias. Recarregue a página.');
+        console.error("Erro ao buscar categorias:", error);
+        setError("Erro ao carregar categorias. Recarregue a página.");
       } finally {
         setLoadingCategories(false);
       }
@@ -85,25 +85,29 @@ export default function NewProductPage() {
     overallProgress,
   } = useR2Upload();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value, type } = e.target;
 
-    if (type === 'checkbox') {
+    if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
+      setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     // 1. Validar arquivos
     const validationErrors = validateFiles();
     if (validationErrors.length > 0) {
-      setError(validationErrors.join(', '));
+      setError(validationErrors.join(", "));
       return;
     }
 
@@ -120,9 +124,18 @@ export default function NewProductPage() {
         freeProduct: formData.freeProduct,
         category: formData.category,
         subcategory: formData.subcategory || null,
-        tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
-        software: formData.software.split(',').map(s => s.trim()).filter(s => s),
-        fileFormats: formData.fileFormats.split(',').map(f => f.trim()).filter(f => f),
+        tags: formData.tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter((t) => t),
+        software: formData.software
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s),
+        fileFormats: formData.fileFormats
+          .split(",")
+          .map((f) => f.trim())
+          .filter((f) => f),
         fileSize: 0, // Será atualizado depois
         polyCount: formData.polyCount ? parseInt(formData.polyCount) : null,
         textureResolution: formData.textureResolution || null,
@@ -130,9 +143,15 @@ export default function NewProductPage() {
         animated: formData.animated,
         pbr: formData.pbr,
         uvMapped: formData.uvMapped,
-        dimensionWidth: formData.dimensionsWidth ? parseFloat(formData.dimensionsWidth) : null,
-        dimensionHeight: formData.dimensionsHeight ? parseFloat(formData.dimensionsHeight) : null,
-        dimensionDepth: formData.dimensionsDepth ? parseFloat(formData.dimensionsDepth) : null,
+        dimensionWidth: formData.dimensionsWidth
+          ? parseFloat(formData.dimensionsWidth)
+          : null,
+        dimensionHeight: formData.dimensionsHeight
+          ? parseFloat(formData.dimensionsHeight)
+          : null,
+        dimensionDepth: formData.dimensionsDepth
+          ? parseFloat(formData.dimensionsDepth)
+          : null,
         featured: formData.featured,
         status: formData.status,
         thumbnailUrl: null, // Será atualizado depois
@@ -144,24 +163,29 @@ export default function NewProductPage() {
       // 3. Upload de arquivos ao R2
       const uploadedFiles = await uploadFiles(
         productId,
-        files.map(f => f.file)
+        files.map((f) => f.file),
       );
 
       // 4. Determinar thumbnail URL
       const thumbnailFile = uploadedFiles.find(
-        uf => files.find(f => f.id === selectedThumbnailId)?.file.name === uf.fileName
+        (uf) =>
+          files.find((f) => f.id === selectedThumbnailId)?.file.name ===
+          uf.fileName,
       );
 
       if (!thumbnailFile) {
-        throw new Error('Erro ao determinar thumbnail');
+        throw new Error("Erro ao determinar thumbnail");
       }
 
       if (!thumbnailFile.publicUrl) {
-        throw new Error('Thumbnail não possui URL pública válida');
+        throw new Error("Thumbnail não possui URL pública válida");
       }
 
       // 5. Atualizar produto com thumbnailUrl e fileSize total
-      const totalFileSize = uploadedFiles.reduce((sum, f) => sum + f.fileSize, 0);
+      const totalFileSize = uploadedFiles.reduce(
+        (sum, f) => sum + f.fileSize,
+        0,
+      );
 
       await AdminService.updateProduct(productId, {
         thumbnailUrl: thumbnailFile.publicUrl, // URL pública gerada pelo backend
@@ -169,23 +193,34 @@ export default function NewProductPage() {
       });
 
       // 6. Redirecionar
-      setError(''); // Garantir que não há erro antes de redirecionar
-      router.push('/admin/products');
+      setError(""); // Garantir que não há erro antes de redirecionar
+      router.push("/admin/products");
     } catch (err: any) {
-      console.error('Erro ao criar produto:', err);
+      console.error("Erro ao criar produto:", err);
 
       // Se criou o produto mas TODOS os arquivos falharam, deletar o produto órfão
-      if (err.message?.includes('Falha no upload de todos os arquivos') && createdProduct?.id) {
+      if (
+        err.message?.includes("Falha no upload de todos os arquivos") &&
+        createdProduct?.id
+      ) {
         try {
-          console.log('Deletando produto órfão devido a falha total no upload...');
+          console.log(
+            "Deletando produto órfão devido a falha total no upload...",
+          );
           await AdminService.deleteProduct(createdProduct.id);
-          setError('Falha no upload de todos os arquivos. Produto não foi criado. Verifique sua conexão e tente novamente.');
+          setError(
+            "Falha no upload de todos os arquivos. Produto não foi criado. Verifique sua conexão e tente novamente.",
+          );
         } catch (deleteErr) {
-          console.error('Erro ao deletar produto órfão:', deleteErr);
-          setError('Erro no upload de arquivos e não foi possível limpar o produto criado. Contate o administrador.');
+          console.error("Erro ao deletar produto órfão:", deleteErr);
+          setError(
+            "Erro no upload de arquivos e não foi possível limpar o produto criado. Contate o administrador.",
+          );
         }
       } else {
-        setError(err.response?.data?.message || err.message || 'Erro ao criar produto');
+        setError(
+          err.response?.data?.message || err.message || "Erro ao criar produto",
+        );
       }
     } finally {
       setLoading(false);
@@ -226,7 +261,9 @@ export default function NewProductPage() {
                 </div>
 
                 <div>
-                  <label className="block mb-2 font-semibold">Descrição Curta *</label>
+                  <label className="block mb-2 font-semibold">
+                    Descrição Curta *
+                  </label>
                   <input
                     type="text"
                     name="shortDescription"
@@ -236,11 +273,15 @@ export default function NewProductPage() {
                     maxLength={200}
                     className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary"
                   />
-                  <span className="text-sm text-foreground/60">{formData.shortDescription.length}/200</span>
+                  <span className="text-sm text-foreground/60">
+                    {formData.shortDescription.length}/200
+                  </span>
                 </div>
 
                 <div>
-                  <label className="block mb-2 font-semibold">Descrição Completa *</label>
+                  <label className="block mb-2 font-semibold">
+                    Descrição Completa *
+                  </label>
                   <textarea
                     name="description"
                     value={formData.description}
@@ -254,7 +295,10 @@ export default function NewProductPage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block mb-2 font-semibold">
-                      Preço (BRL) {!formData.freeProduct && <span className="text-red-500">*</span>}
+                      Preço (BRL){" "}
+                      {!formData.freeProduct && (
+                        <span className="text-red-500">*</span>
+                      )}
                     </label>
                     <input
                       type="number"
@@ -269,16 +313,20 @@ export default function NewProductPage() {
                     />
                   </div>
 
-                  <div>
+                  <div className="space-y-4">
                     <Select
                       label="Categoria *"
                       name="category"
                       value={formData.category}
                       onChange={handleChange}
                       disabled={loadingCategories}
-                      options={loadingCategories
-                        ? [{ value: '', label: 'Carregando categorias...' }]
-                        : categories.map(cat => ({ value: cat.value, label: cat.label }))
+                      options={
+                        loadingCategories
+                          ? [{ value: "", label: "Carregando categorias..." }]
+                          : categories.map((cat) => ({
+                              value: cat.value,
+                              label: cat.label,
+                            }))
                       }
                     />
                   </div>
@@ -298,17 +346,21 @@ export default function NewProductPage() {
                   {formData.freeProduct && (
                     <div className="mt-2 ml-7 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded">
                       <p className="text-sm text-blue-800 dark:text-blue-200">
-                        <strong>Produto gratuito:</strong> Disponível sem custo, mas <strong>requer login</strong> para download.
+                        <strong>Produto gratuito:</strong> Disponível sem custo,
+                        mas <strong>requer login</strong> para download.
                       </p>
                       <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
-                        Usuários precisarão estar autenticados para adicionar à biblioteca e fazer download.
+                        Usuários precisarão estar autenticados para adicionar à
+                        biblioteca e fazer download.
                       </p>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <label className="block mb-2 font-semibold">Subcategoria</label>
+                  <label className="block mb-2 font-semibold">
+                    Subcategoria
+                  </label>
                   <input
                     type="text"
                     name="subcategory"
@@ -319,7 +371,9 @@ export default function NewProductPage() {
                 </div>
 
                 <div>
-                  <label className="block mb-2 font-semibold">Tags (separadas por vírgula)</label>
+                  <label className="block mb-2 font-semibold">
+                    Tags (separadas por vírgula)
+                  </label>
                   <input
                     type="text"
                     name="tags"
@@ -334,11 +388,15 @@ export default function NewProductPage() {
 
             {/* Especificações Técnicas */}
             <div className="border border-foreground/20 rounded p-6">
-              <h2 className="text-2xl font-bold mb-4">Especificações Técnicas</h2>
+              <h2 className="text-2xl font-bold mb-4">
+                Especificações Técnicas
+              </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block mb-2 font-semibold">Software Compatível (separado por vírgula) *</label>
+                  <label className="block mb-2 font-semibold">
+                    Software Compatível (separado por vírgula) *
+                  </label>
                   <input
                     type="text"
                     name="software"
@@ -351,7 +409,9 @@ export default function NewProductPage() {
                 </div>
 
                 <div>
-                  <label className="block mb-2 font-semibold">Formatos de Arquivo (separados por vírgula) *</label>
+                  <label className="block mb-2 font-semibold">
+                    Formatos de Arquivo (separados por vírgula) *
+                  </label>
                   <input
                     type="text"
                     name="fileFormats"
@@ -365,7 +425,9 @@ export default function NewProductPage() {
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block mb-2 font-semibold">Contagem de Polígonos</label>
+                    <label className="block mb-2 font-semibold">
+                      Contagem de Polígonos
+                    </label>
                     <input
                       type="number"
                       name="polyCount"
@@ -377,7 +439,9 @@ export default function NewProductPage() {
                   </div>
 
                   <div>
-                    <label className="block mb-2 font-semibold">Resolução da Textura</label>
+                    <label className="block mb-2 font-semibold">
+                      Resolução da Textura
+                    </label>
                     <input
                       type="text"
                       name="textureResolution"
@@ -471,7 +535,9 @@ export default function NewProductPage() {
                 </div>
 
                 <div>
-                  <label className="block mb-2 font-semibold">Profundidade</label>
+                  <label className="block mb-2 font-semibold">
+                    Profundidade
+                  </label>
                   <input
                     type="number"
                     name="dimensionsDepth"
@@ -497,7 +563,20 @@ export default function NewProductPage() {
                 onCategoryChange={updateCategory}
                 selectedThumbnailId={selectedThumbnailId}
                 onThumbnailSelect={setThumbnail}
-                uploadProgress={uploadProgressMap ? new Map(uploadProgressMap.map((item) => [item.fileName, { progress: item.progress, status: item.status, error: item.error }])) : undefined}
+                uploadProgress={
+                  uploadProgressMap
+                    ? new Map(
+                        uploadProgressMap.map((item) => [
+                          item.fileName,
+                          {
+                            progress: item.progress,
+                            status: item.status,
+                            error: item.error,
+                          },
+                        ]),
+                      )
+                    : undefined
+                }
                 disabled={uploading || loading}
                 errors={fileErrors}
               />
@@ -527,7 +606,7 @@ export default function NewProductPage() {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  options={Object.values(ProductStatus).map(status => ({
+                  options={Object.values(ProductStatus).map((status) => ({
                     value: status,
                     label: status,
                   }))}
@@ -564,13 +643,17 @@ export default function NewProductPage() {
                 size="lg"
                 className="flex-1"
               >
-                {uploading ? `Fazendo upload... ${overallProgress}%` : loading ? 'Criando produto...' : 'Criar Produto'}
+                {uploading
+                  ? `Fazendo upload... ${overallProgress}%`
+                  : loading
+                    ? "Criando produto..."
+                    : "Criar Produto"}
               </Button>
 
               {error && (
-                  <div className="mb-6 p-4 bg-red-500/10 border border-red-500 text-red-500 rounded">
-                    {error}
-                  </div>
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500 text-red-500 rounded">
+                  {error}
+                </div>
               )}
             </div>
           </form>
