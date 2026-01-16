@@ -53,6 +53,7 @@ export interface OrderDTO {
   id: string;
   userId: string;
   userName: string; // Nome do usuário (SEM email/password)
+  userEmail: string; // Email do cliente (para admin)
   items: OrderItemDTO[];
   totalAmountBRL: number;
   status: OrderStatus;

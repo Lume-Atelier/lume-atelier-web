@@ -86,7 +86,7 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-3 gap-4 mb-12">
           <Link href="/admin/users">
             <Button variant="outline" size="xl" fullWidth className="h-24">
               <h3 className="text-xl font-bold">Gerenciar Usuarios</h3>

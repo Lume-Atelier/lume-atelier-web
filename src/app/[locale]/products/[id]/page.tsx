@@ -141,6 +141,40 @@ export default function ProductDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* Seção de Licença de Uso */}
+            <div className="border border-foreground/20 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Licença de Uso
+              </h3>
+
+              <div className="text-foreground/90 font-semibold mb-3">
+                Uso Comercial Não Redistribuível
+              </div>
+
+              <ul className="space-y-2 text-sm text-foreground/70">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500">✓</span>
+                  <span>Você pode usar este asset em seus projetos comerciais</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500">✓</span>
+                  <span>Uso permitido em projetos para clientes</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span>
+                  <span>Revenda ou redistribuição do asset original proibida</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-500">✗</span>
+                  <span>Compartilhamento dos arquivos fonte proibido</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* COLUNA DIREITA (Informações e Checkout) */}
@@ -186,45 +220,6 @@ export default function ProductDetailPage() {
             {/* Especificações Técnicas */}
             <div className="border border-foreground/20 rounded-lg p-6 text-sm">
               <div className="space-y-3">
-                {/* Informações de Licença - DESTAQUE */}
-                <div className="border-b-2 border-primary/30 pb-4 mb-4">
-                  <div className="flex items-start gap-2 mb-2">
-                    <span className="text-foreground/90 font-bold">
-                      Licença:
-                    </span>
-                    <div className="flex-1 text-foreground/80 font-semibold">
-                      Uso Comercial Não Redistribuível
-                    </div>
-                  </div>
-                  <ul className="space-y-1.5 ml-6 text-xs text-foreground/70">
-                    <li className="flex items-start">
-                      <span className="mr-2">✓</span>
-                      <span>
-                        Você pode usar este asset em seus projetos comerciais
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">✗</span>
-                      <span>
-                        Não é permitido revender ou redistribuir este asset
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">🔄</span>
-                      <span className="font-semibold text-foreground/80">
-                        Royalty-Free: Uso ilimitado após a compra avulsa
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2">⚠️</span>
-                      <span className="italic">
-                        Assets adquiridos por assinatura: requerem renovação
-                        para manter acesso ao download
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-
                 {product.fileFormats && product.fileFormats.length > 0 && (
                   <div className="flex justify-between border-b border-foreground/5 pb-2">
                     <span className="text-foreground/50">Format:</span>
