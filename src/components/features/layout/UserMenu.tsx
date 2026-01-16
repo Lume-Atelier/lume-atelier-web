@@ -43,12 +43,16 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
       {/* Botão do ícone de usuário */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 hover:text-primary transition rounded-full hover:bg-primary/10"
+        className={`p-2 hover:text-primary transition-all duration-200 rounded-full hover:bg-primary/10 ${
+          isOpen ? 'scale-110 text-primary bg-primary/10' : ''
+        }`}
         aria-label="Menu do usuário"
         aria-expanded={isOpen}
       >
         <svg
-          className="w-6 h-6"
+          className={`w-6 h-6 transition-transform duration-200 ${
+            isOpen ? 'rotate-12' : ''
+          }`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -64,13 +68,13 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-lg shadow-lg overflow-hidden z-50">
+        <div className="absolute right-0 top-full mt-2 w-64 bg-white/80 backdrop-blur-xl border border-gray-200 rounded-lg shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header com nome/email */}
-          <div className="px-4 py-3 border-b border-border bg-muted/50">
-            <p className="font-medium text-foreground truncate">
+          <div className="px-4 py-3 border-b border-gray-200 bg-gray-50/50">
+            <p className="font-medium text-gray-900 truncate">
               {user.name || 'Usuário'}
             </p>
-            <p className="text-sm text-muted-foreground truncate">
+            <p className="text-sm text-gray-600 truncate">
               {user.email}
             </p>
           </div>
@@ -104,7 +108,7 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
               <Link
                 href="/admin"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-4 py-2 text-foreground hover:bg-primary/10 transition"
+                className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-primary/10 hover:text-gray-900 transition"
               >
                 <svg
                   className="w-5 h-5"
@@ -131,13 +135,13 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
           </div>
 
           {/* Separador e Botão Sair */}
-          <div className="border-t border-border py-2">
+          <div className="border-t border-gray-200 py-2">
             <button
               onClick={() => {
                 setIsOpen(false);
                 onLogout();
               }}
-              className="flex items-center gap-3 px-4 py-2 w-full text-left text-foreground hover:bg-destructive/10 hover:text-destructive transition"
+              className="flex items-center gap-3 px-4 py-2 w-full text-left text-gray-700 hover:bg-red-50 hover:text-red-600 transition"
             >
               <svg
                 className="w-5 h-5"
