@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { OrderService } from '@/lib/api/services';
 import { Button } from '@/components/ui/Button';
+import { DownloadProgressButton } from '@/components/features/download/DownloadProgressButton';
 import type { OrderDTO } from '@/types';
 
 export default function LibraryPage() {
   const [orders, setOrders] = useState<OrderDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadOrders();
@@ -28,30 +28,14 @@ export default function LibraryPage() {
   };
 
   /**
-   * 🔐 NOVO FLUXO SEGURO DE DOWNLOAD
-   * 1. Chama POST /orders/{id}/downloads
-   * 2. Backend valida ownership, status COMPLETED
-   * 3. Retorna presigned URLs temporárias (60 min)
-   * 4. Browser faz download direto do R2
+   * Obtem o nome do produto para o ZIP
+   * Se tiver multiplos produtos, usa o nome do primeiro + quantidade
    */
-  const handleDownload = async (orderId: string) => {
-    try {
-      setDownloadingId(orderId);
-      await OrderService.generateAndDownload(orderId);
-    } catch (error: any) {
-      console.error('Erro no download:', error);
-
-      // Mensagens de erro específicas
-      if (error.response?.status === 403) {
-        alert('Você não tem permissão para baixar este pedido.');
-      } else if (error.response?.status === 400) {
-        alert('Pedido ainda não está completo.');
-      } else {
-        alert('Erro ao fazer download. Tente novamente.');
-      }
-    } finally {
-      setDownloadingId(null);
+  const getProductNameForZip = (order: OrderDTO): string => {
+    if (order.items.length === 1) {
+      return order.items[0].productTitle;
     }
+    return `${order.items[0].productTitle}_e_mais_${order.items.length - 1}`;
   };
 
   if (loading) {
@@ -103,16 +87,12 @@ export default function LibraryPage() {
                   {/* Download agora é por pedido, não por produto */}
                 </div>
               ))}
-              {/* Botão de download único por pedido (todos os produtos de uma vez) */}
+              {/* Botão de download único por pedido (todos os produtos como ZIP) */}
               <div className="flex justify-end mt-4">
-                <Button
-                  onClick={() => handleDownload(order.id)}
-                  disabled={downloadingId === order.id}
-                  variant="outline"
-                  size="md"
-                >
-                  {downloadingId === order.id ? 'Baixando...' : 'Baixar Todos os Arquivos'}
-                </Button>
+                <DownloadProgressButton
+                  orderId={order.id}
+                  productName={getProductNameForZip(order)}
+                />
               </div>
             </div>
           </div>
