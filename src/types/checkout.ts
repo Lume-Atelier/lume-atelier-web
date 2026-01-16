@@ -67,6 +67,7 @@ export interface OrderItemDTO {
   productId: string;
   productTitle: string;
   priceBRL: number;
+  thumbnailUrl?: string;
 }
 
 export enum OrderStatus {

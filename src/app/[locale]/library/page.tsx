@@ -1,57 +1,105 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { OrderService } from '@/lib/api/services';
+import { usePathname } from 'next/navigation';
+import { useLibrary } from '@/hooks/queries/useLibrary';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { Button } from '@/components/ui/Button';
-import { DownloadProgressButton } from '@/components/features/download/DownloadProgressButton';
-import type { OrderDTO } from '@/types';
+import { Pagination } from '@/components/ui/Pagination';
+import { LibraryAssetCard } from '@/components/features/library/LibraryAssetCard';
+import { LibraryToolbar } from '@/components/features/library/LibraryToolbar';
+import type { LibraryFilter } from '@/types/library';
+
+const PAGE_SIZE = 5;
 
 export default function LibraryPage() {
-  const [orders, setOrders] = useState<OrderDTO[]>([]);
-  const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'pt-BR';
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
+  // State for filters
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [page, setPage] = useState(0);
 
-  const loadOrders = async () => {
-    try {
-      const response = await OrderService.getMyOrders(0, 50);
-      const completedOrders = response.content.filter((o) => o.status === 'COMPLETED');
-      setOrders(completedOrders);
-    } catch (error) {
-      console.error('Erro ao carregar biblioteca:', error);
-    } finally {
-      setLoading(false);
-    }
+  // Debounce search input (300ms)
+  const debouncedSearch = useDebouncedValue(search, 300);
+
+  // Build filters object
+  const filters: LibraryFilter = useMemo(() => ({
+    search: debouncedSearch || undefined,
+    category: category || undefined,
+  }), [debouncedSearch, category]);
+
+  // Fetch library data
+  const { data, isLoading, error } = useLibrary(page, PAGE_SIZE, filters);
+
+  // Reset to page 0 when filters change
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(0);
   };
 
-  /**
-   * Obtem o nome do produto para o ZIP
-   * Se tiver multiplos produtos, usa o nome do primeiro + quantidade
-   */
-  const getProductNameForZip = (order: OrderDTO): string => {
-    if (order.items.length === 1) {
-      return order.items[0].productTitle;
-    }
-    return `${order.items[0].productTitle}_e_mais_${order.items.length - 1}`;
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    setPage(0);
   };
 
-  if (loading) {
+  // Loading state
+  if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <p>Carregando biblioteca...</p>
+      <div className="container mx-auto px-4 py-16">
+        <h1 className="text-4xl font-bold mb-8">Minha Biblioteca</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-card border border-border rounded-xl overflow-hidden animate-pulse"
+            >
+              <div className="aspect-[4/3] bg-muted" />
+              <div className="p-4 space-y-3">
+                <div className="h-5 bg-muted rounded w-3/4" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+                <div className="flex gap-2 pt-2">
+                  <div className="h-9 bg-muted rounded flex-1" />
+                  <div className="h-9 bg-muted rounded flex-1" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
-  if (orders.length === 0) {
+  // Error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-3xl font-bold mb-4">Erro ao carregar biblioteca</h1>
+        <p className="text-muted-foreground mb-8">
+          Ocorreu um erro ao carregar seus assets. Tente novamente.
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Tentar Novamente
+        </Button>
+      </div>
+    );
+  }
+
+  const assets = data?.content || [];
+  const totalPages = data?.totalPages || 0;
+  const totalElements = data?.totalElements || 0;
+
+  // Empty state
+  if (assets.length === 0 && !debouncedSearch && !category) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-3xl font-bold mb-4">Biblioteca Vazia</h1>
-        <p className="text-foreground/70 mb-8">Você ainda não comprou nenhum produto</p>
-        <Link href="/products">
+        <p className="text-muted-foreground mb-8">
+          Voce ainda nao comprou nenhum produto
+        </p>
+        <Link href={`/${locale}/products`}>
           <Button variant="outline" size="lg">
             Explorar Produtos
           </Button>
@@ -64,40 +112,56 @@ export default function LibraryPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Minha Biblioteca</h1>
 
-      <div className="space-y-6">
-        {orders.map((order) => (
-          <div key={order.id} className="border border-foreground/20 rounded p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-sm text-foreground/60">Pedido #{order.id.substring(0, 8)}</p>
-                <p className="text-sm text-foreground/60">
-                  {new Date(order.createdAt).toLocaleDateString('pt-BR')}
-                </p>
-              </div>
-              <p className="text-primary font-bold">R$ {order.totalAmountBRL.toFixed(2)}</p>
-            </div>
+      {/* Toolbar with search and category filter */}
+      <LibraryToolbar
+        search={search}
+        onSearchChange={handleSearchChange}
+        category={category}
+        onCategoryChange={handleCategoryChange}
+      />
 
-            <div className="space-y-3">
-              {order.items.map((item) => (
-                <div key={item.id} className="flex justify-between items-center p-4 bg-foreground/5 rounded">
-                  <div>
-                    <h3 className="font-bold">{item.productTitle}</h3>
-                    <p className="text-sm text-foreground/60">R$ {item.priceBRL.toFixed(2)}</p>
-                  </div>
-                  {/* Download agora é por pedido, não por produto */}
-                </div>
-              ))}
-              {/* Botão de download único por pedido (todos os produtos como ZIP) */}
-              <div className="flex justify-end mt-4">
-                <DownloadProgressButton
-                  orderId={order.id}
-                  productName={getProductNameForZip(order)}
-                />
-              </div>
-            </div>
+      {/* No results for filters */}
+      {assets.length === 0 && (debouncedSearch || category) && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground mb-4">
+            Nenhum asset encontrado para os filtros selecionados
+          </p>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setSearch('');
+              setCategory('');
+              setPage(0);
+            }}
+          >
+            Limpar Filtros
+          </Button>
+        </div>
+      )}
+
+      {/* Assets grid */}
+      {assets.length > 0 && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {assets.map((asset) => (
+              <LibraryAssetCard
+                key={asset.id}
+                asset={asset}
+                locale={locale}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+
+          {/* Pagination */}
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalElements={totalElements}
+            pageSize={PAGE_SIZE}
+          />
+        </>
+      )}
     </div>
   );
 }

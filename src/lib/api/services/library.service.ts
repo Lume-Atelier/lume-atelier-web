@@ -1,20 +1,42 @@
 import { apiClient } from '../client';
-import type { ProductFile } from '@/types';
+import type { ProductFile, PageResponse } from '@/types';
+import type { LibraryAssetDTO, LibraryFilter } from '@/types/library';
 
 /**
- * Serviço de Biblioteca - Download de produtos comprados
+ * Serviço de Biblioteca - Assets comprados pelo usuário
  *
- * ⚠️ IMPORTANTE: O fluxo de download foi refatorado!
+ * ENDPOINTS:
+ * - GET /library: Lista assets com filtros e paginação
  *
- * FLUXO NOVO (SEGURO):
- * 1. Usuário cria pedido: POST /orders
- * 2. Admin aprova: PATCH /orders/{id}/status → COMPLETED
- * 3. Gera links: POST /orders/{id}/downloads (validação de ownership)
- * 4. Retorna presigned URLs temporárias (60 min)
- *
- * Use OrderService.generateDownloadLinks(orderId) ao invés deste serviço!
+ * Para downloads, use OrderService.generateDownloadLinks(orderId)
  */
 export class LibraryService {
+  /**
+   * Busca assets na biblioteca do usuário
+   * @param filters Filtros de busca (search, category)
+   * @param page Número da página (0-indexed)
+   * @param pageSize Itens por página
+   * @returns PageResponse<LibraryAssetDTO>
+   */
+  static async getMyLibrary(
+    filters: LibraryFilter = {},
+    page = 0,
+    pageSize = 5
+  ): Promise<PageResponse<LibraryAssetDTO>> {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('pageSize', pageSize.toString());
+
+    if (filters.search) {
+      params.append('search', filters.search);
+    }
+
+    if (filters.category) {
+      params.append('category', filters.category);
+    }
+
+    return apiClient.get<PageResponse<LibraryAssetDTO>>(`/library?${params.toString()}`);
+  }
   // ========== MÉTODOS DEPRECATED ==========
 
   /**
