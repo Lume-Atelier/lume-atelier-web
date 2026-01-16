@@ -7,6 +7,7 @@ import { ProductStatus } from '@/types/product';
 import type { Category } from '@/types/category';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 import { useProductFiles } from '@/hooks/useProductFiles';
 import { useR2Upload } from '@/hooks/useR2Upload';
 import { ProductFileManager } from '@/components/admin/ProductFileManager';
@@ -269,23 +270,17 @@ export default function NewProductPage() {
                   </div>
 
                   <div>
-                    <label className="block mb-2 font-semibold">Categoria *</label>
-                    <select
+                    <Select
+                      label="Categoria *"
                       name="category"
                       value={formData.category}
                       onChange={handleChange}
-                      required
                       disabled={loadingCategories}
-                      className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary [&>option]:bg-white [&>option]:text-black disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loadingCategories ? (
-                        <option>Carregando categorias...</option>
-                      ) : (
-                        categories.map(cat => (
-                          <option key={cat.value} value={cat.value}>{cat.label}</option>
-                        ))
-                      )}
-                    </select>
+                      options={loadingCategories
+                        ? [{ value: '', label: 'Carregando categorias...' }]
+                        : categories.map(cat => ({ value: cat.value, label: cat.label }))
+                      }
+                    />
                   </div>
                 </div>
 
@@ -527,19 +522,16 @@ export default function NewProductPage() {
               <h2 className="text-2xl font-bold mb-4">Configurações</h2>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block mb-2 font-semibold">Status</label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 bg-background border border-foreground/20 rounded focus:outline-none focus:border-primary [&>option]:bg-white [&>option]:text-black"
-                  >
-                    {Object.values(ProductStatus).map(status => (
-                      <option key={status} value={status}>{status}</option>
-                    ))}
-                  </select>
-                </div>
+                <Select
+                  label="Status"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleChange}
+                  options={Object.values(ProductStatus).map(status => ({
+                    value: status,
+                    label: status,
+                  }))}
+                />
 
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
