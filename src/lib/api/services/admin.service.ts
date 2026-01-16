@@ -7,6 +7,8 @@ import {
   ConfirmUploadRequest,
   FileUploadRequest,
   determineFileCategory, PresignedUrlRequest,
+  FinancialAnalytics,
+  DateRange,
 } from "@/types";
 
 interface PagedResponse<T> {
@@ -27,6 +29,14 @@ interface DashboardStats {
 export class AdminService {
   static async getDashboardStats(): Promise<DashboardStats> {
     return apiClient.get<DashboardStats>("/admin/dashboard");
+  }
+
+  static async getFinancialAnalytics(dateRange: DateRange): Promise<FinancialAnalytics> {
+    const params = new URLSearchParams({
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+    });
+    return apiClient.get<FinancialAnalytics>(`/admin/dashboard/analytics?${params}`);
   }
 
   static async getAllProducts(

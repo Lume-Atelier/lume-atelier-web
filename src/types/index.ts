@@ -4,3 +4,4 @@ export * from './checkout';
 export * from './productFile';
 export * from './error';
 export * from './category';
+export * from './analytics';

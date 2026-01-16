@@ -9,3 +9,4 @@ export * from './useOrders';
 export * from './usePaymentStatus';
 export * from './useZipDownload';
 export * from './useLibrary';
+export * from './useFinancialAnalytics';
