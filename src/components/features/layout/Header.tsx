@@ -7,10 +7,11 @@ import { useCartStore } from '@/stores/cart-store';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/components/ThemeProvider';
 import { Button } from '@/components/ui/Button';
+import { UserMenu } from './UserMenu';
 
 export function Header() {
   const pathname = usePathname();
-  const { isAuthenticated, isAdmin, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { items } = useCartStore();
   const { theme, toggleTheme } = useTheme();
 
@@ -139,31 +140,22 @@ export function Header() {
                 )}
               </Link>
 
-              {/* User - Container com largura fixa */}
-              <div className="flex items-center gap-2 min-w-[140px] justify-end">
-                {!isAuthenticated ? (
-                        <Link href="/login">
-                          <Button variant="outline" size="sm">
-                            Entrar
-                          </Button>
-                        </Link>
-                ) : (
-                    <>
-                      <Button variant="outline" size="sm"
-                          onClick={handleLogout}
-                      >
-                        Sair
-                      </Button>
-                      {isAdmin && (
-                          <Link href="/admin">
-                            <Button variant="outline" size="sm">
-                              Admin
-                            </Button>
-                          </Link>
-                      )}
-                    </>
-                )}
-              </div>
+              {/* User Menu */}
+              {!isAuthenticated ? (
+                <Link href="/login">
+                  <Button variant="outline" size="sm">
+                    Entrar
+                  </Button>
+                </Link>
+              ) : (
+                user && (
+                  <UserMenu
+                    user={{ name: user.name, email: user.email }}
+                    isAdmin={isAdmin}
+                    onLogout={handleLogout}
+                  />
+                )
+              )}
             </div>
           </div>
         </div>
