@@ -85,7 +85,7 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
             <Link
               href="/library"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2 text-primary font-semibold hover:bg-primary/10 transition"
+              className="flex items-center gap-3 px-4 py-2 text-amber-600 font-semibold hover:bg-amber-50 transition"
             >
               <svg
                 className="w-5 h-5"
