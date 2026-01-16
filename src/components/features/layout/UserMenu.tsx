@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 
 interface UserMenuProps {
   user: {
@@ -23,19 +23,19 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
         setIsOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Fecha o dropdown ao pressionar ESC
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setIsOpen(false);
       }
     };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
   return (
@@ -44,14 +44,14 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`p-2 hover:text-primary transition-all duration-200 rounded-full hover:bg-primary/10 ${
-          isOpen ? 'scale-110 text-primary bg-primary/10' : ''
+          isOpen ? "scale-110 text-primary bg-primary/10" : ""
         }`}
         aria-label="Menu do usuário"
         aria-expanded={isOpen}
       >
         <svg
           className={`w-6 h-6 transition-transform duration-200 ${
-            isOpen ? 'rotate-12' : ''
+            isOpen ? "rotate-12" : ""
           }`}
           fill="none"
           stroke="currentColor"
@@ -72,11 +72,9 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
           {/* Header com nome/email */}
           <div className="px-4 py-3 border-b border-gray-200 bg-gray-50/50">
             <p className="font-medium text-gray-900 truncate">
-              {user.name || 'Usuário'}
+              {user.name || "Usuário"}
             </p>
-            <p className="text-sm text-gray-600 truncate">
-              {user.email}
-            </p>
+            <p className="text-sm text-gray-600 truncate">{user.email}</p>
           </div>
 
           {/* Links */}
@@ -85,7 +83,7 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
             <Link
               href="/library"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-4 py-2 text-amber-600 font-semibold hover:bg-amber-50 transition"
+              className="flex items-center gap-3 px-4 py-2 caret-amber-400 font-semibold hover:bg-amber-50 transition"
             >
               <svg
                 className="w-5 h-5"
