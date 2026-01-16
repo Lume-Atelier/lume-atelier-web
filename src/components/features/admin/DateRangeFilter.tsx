@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Select } from '@/components/ui/Select';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 import type { DateRange, DateRangePreset } from '@/types';
 
 interface DateRangeFilterProps {
@@ -8,12 +11,7 @@ interface DateRangeFilterProps {
   onChange: (dateRange: DateRange) => void;
 }
 
-interface PresetOption {
-  value: DateRangePreset;
-  label: string;
-}
-
-const PRESETS: PresetOption[] = [
+const PRESET_OPTIONS = [
   { value: 'last7days', label: 'Ultimos 7 dias' },
   { value: 'last30days', label: 'Ultimos 30 dias' },
   { value: 'thisMonth', label: 'Este Mes' },
@@ -54,6 +52,7 @@ function calculateDateRange(preset: DateRangePreset): DateRange {
 
 /**
  * Componente de filtro de periodo com presets e opcao personalizada.
+ * Usa os componentes padrao do sistema (Select, Input, Button).
  */
 export function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
   const [preset, setPreset] = useState<DateRangePreset>('last30days');
@@ -83,41 +82,42 @@ export function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-4">
-      <select
-        value={preset}
-        onChange={handlePresetChange}
-        className="px-4 py-2 border border-foreground/20 rounded bg-background text-foreground focus:outline-none focus:border-gold/50 cursor-pointer"
-      >
-        {PRESETS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+    <div className="flex flex-wrap items-end gap-4">
+      <div className="w-48">
+        <Select
+          value={preset}
+          onChange={handlePresetChange}
+          options={PRESET_OPTIONS}
+          size="sm"
+        />
+      </div>
 
       {preset === 'custom' && (
-        <div className="flex items-center gap-2">
-          <input
-            type="date"
-            value={customStartDate}
-            onChange={(e) => setCustomStartDate(e.target.value)}
-            className="px-3 py-2 border border-foreground/20 rounded bg-background text-foreground focus:outline-none focus:border-gold/50"
-          />
-          <span className="text-foreground/60">ate</span>
-          <input
-            type="date"
-            value={customEndDate}
-            onChange={(e) => setCustomEndDate(e.target.value)}
-            className="px-3 py-2 border border-foreground/20 rounded bg-background text-foreground focus:outline-none focus:border-gold/50"
-          />
-          <button
+        <div className="flex items-end gap-3">
+          <div className="w-40">
+            <Input
+              type="date"
+              value={customStartDate}
+              onChange={(e) => setCustomStartDate(e.target.value)}
+              size="sm"
+            />
+          </div>
+          <span className="text-foreground/60 pb-2">ate</span>
+          <div className="w-40">
+            <Input
+              type="date"
+              value={customEndDate}
+              onChange={(e) => setCustomEndDate(e.target.value)}
+              size="sm"
+            />
+          </div>
+          <Button
             onClick={handleCustomDateChange}
             disabled={!customStartDate || !customEndDate}
-            className="px-4 py-2 bg-gold text-background rounded font-medium hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            size="sm"
           >
             Aplicar
-          </button>
+          </Button>
         </div>
       )}
     </div>
