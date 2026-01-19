@@ -187,4 +187,20 @@ export class AdminService {
       {},
     );
   }
+
+  /**
+   * Reordena arquivos de um produto
+   * @param productId ID do produto
+   * @param fileIds Lista de IDs na nova ordem
+   * @returns Mensagem de confirmação
+   */
+  static async reorderFiles(
+    productId: string,
+    fileIds: string[],
+  ): Promise<{ message: string; count: string }> {
+    return apiClient.put<{ message: string; count: string }>(
+      `/products/${productId}/files/reorder`,
+      { fileIds },
+    );
+  }
 }

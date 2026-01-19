@@ -9,6 +9,7 @@ export interface ProductFileManagerProps {
   onFilesAdded: (files: File[]) => void;
   onRemoveFile: (id: string) => void;
   onCategoryChange?: (id: string, category: FileCategory) => void;
+  onReorder?: (fromIndex: number, toIndex: number) => void;
   selectedThumbnailId: string | null;
   onThumbnailSelect: (id: string) => void;
   uploadProgress?: Map<string, { progress: number; status: 'pending' | 'uploading' | 'confirming' | 'completed' | 'error'; error?: string }>;
@@ -29,6 +30,7 @@ export function ProductFileManager({
   onFilesAdded,
   onRemoveFile,
   onCategoryChange,
+  onReorder,
   selectedThumbnailId,
   onThumbnailSelect,
   uploadProgress,
@@ -76,6 +78,7 @@ export function ProductFileManager({
               uploadProgress={uploadProgress}
               onRemoveFile={onRemoveFile}
               onCategoryChange={disabled ? undefined : onCategoryChange}
+              onReorder={disabled ? undefined : onReorder}
             />
           </div>
 

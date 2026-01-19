@@ -1,13 +1,17 @@
+'use client';
+
 import { useState } from 'react';
 import { FileCategory } from '@/types';
 import type { FileWithMetadata } from '@/hooks/useProductFiles';
 import { FileItem } from './FileItem';
+import { SortableImageList } from './SortableImageList';
 
 export interface FileListProps {
   files: FileWithMetadata[];
   uploadProgress?: Map<string, { progress: number; status: 'pending' | 'uploading' | 'confirming' | 'completed' | 'error' }>;
   onRemoveFile: (id: string) => void;
   onCategoryChange?: (id: string, category: FileCategory) => void;
+  onReorder?: (fromIndex: number, toIndex: number) => void;
 }
 
 type TabFilter = 'ALL' | FileCategory;
@@ -25,6 +29,7 @@ export function FileList({
   uploadProgress,
   onRemoveFile,
   onCategoryChange,
+  onReorder,
 }: FileListProps) {
   const [activeTab, setActiveTab] = useState<TabFilter>('ALL');
 
@@ -102,13 +107,23 @@ export function FileList({
       )}
 
       {/* Lista de arquivos */}
-      <div className="space-y-2">
-        {filteredFiles.length === 0 ? (
-          <div className="text-center py-6 text-gray-500 dark:text-gray-400 text-sm">
-            Nenhum arquivo nesta categoria.
-          </div>
-        ) : (
-          filteredFiles.map((file) => {
+      {filteredFiles.length === 0 ? (
+        <div className="text-center py-6 text-gray-500 dark:text-gray-400 text-sm">
+          Nenhum arquivo nesta categoria.
+        </div>
+      ) : activeTab === FileCategory.IMAGE && onReorder ? (
+        // Usar SortableImageList para imagens quando drag-and-drop está habilitado
+        <SortableImageList
+          files={filteredFiles}
+          uploadProgress={uploadProgress}
+          onRemoveFile={onRemoveFile}
+          onCategoryChange={onCategoryChange}
+          onReorder={onReorder}
+        />
+      ) : (
+        // Lista normal para outras categorias
+        <div className="space-y-2">
+          {filteredFiles.map((file) => {
             const progress = uploadProgress?.get(file.file.name);
 
             return (
@@ -121,9 +136,9 @@ export function FileList({
                 onCategoryChange={onCategoryChange}
               />
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
     </div>
   );
 }

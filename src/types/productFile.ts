@@ -74,6 +74,13 @@ export interface DownloadUrlResponse {
 }
 
 /**
+ * Request para reordenar arquivos de um produto
+ */
+export interface ReorderFilesRequest {
+  fileIds: string[];
+}
+
+/**
  * Helper para determinar categoria do arquivo baseado na extensão
  */
 export function determineFileCategory(fileName: string): FileCategory {

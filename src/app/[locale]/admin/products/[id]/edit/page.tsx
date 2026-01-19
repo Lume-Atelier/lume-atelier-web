@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AdminService, CategoryService } from '@/lib/api/services';
 import { ProductStatus } from '@/types/product';
+import { FileCategory } from '@/types/productFile';
 import type { Category } from '@/types/category';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Button } from '@/components/ui/Button';
@@ -56,6 +57,7 @@ export default function EditProductPage() {
     addFiles,
     removeFile,
     updateCategory,
+    reorderFiles,
     setThumbnail,
     validateFiles,
     getImages,
@@ -177,6 +179,20 @@ export default function EditProductPage() {
 
         // Calcular tamanho total dos arquivos
         totalFileSize = uploadedFiles.reduce((sum, f) => sum + f.fileSize, 0);
+
+        // Reordenar imagens conforme a ordem definida pelo usuário
+        const imageFiles = files.filter(f => f.category === FileCategory.IMAGE);
+        if (imageFiles.length > 1) {
+          // Mapear nomes de arquivos locais para IDs do servidor na ordem correta
+          const orderedImageIds = imageFiles
+            .map(localFile => uploadedFiles.find(uf => uf.fileName === localFile.file.name))
+            .filter((uf): uf is NonNullable<typeof uf> => uf !== undefined)
+            .map(uf => uf.id);
+
+          if (orderedImageIds.length > 1) {
+            await AdminService.reorderFiles(productId, orderedImageIds);
+          }
+        }
       }
 
       // 2. Atualizar dados do produto
@@ -559,6 +575,7 @@ export default function EditProductPage() {
                 onFilesAdded={addFiles}
                 onRemoveFile={removeFile}
                 onCategoryChange={updateCategory}
+                onReorder={reorderFiles}
                 selectedThumbnailId={selectedThumbnailId}
                 onThumbnailSelect={setThumbnail}
                 uploadProgress={uploadProgressMap ? new Map(uploadProgressMap.map((item) => [item.fileName, { progress: item.progress, status: item.status, error: item.error }])) : undefined}
