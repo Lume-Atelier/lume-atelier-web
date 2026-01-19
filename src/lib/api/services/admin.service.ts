@@ -115,6 +115,13 @@ export class AdminService {
     return apiClient.put<Product>(`/products/${productId}`, product);
   }
 
+  static async patchProduct(
+    productId: string,
+    product: Partial<Product>,
+  ): Promise<Product> {
+    return apiClient.patch<Product>(`/products/${productId}`, product);
+  }
+
   // ========== MÉTODOS R2 (Cloudflare R2 Storage) ==========
 
   /**

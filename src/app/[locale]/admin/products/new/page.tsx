@@ -187,7 +187,7 @@ export default function NewProductPage() {
         0,
       );
 
-      await AdminService.updateProduct(productId, {
+      await AdminService.patchProduct(productId, {
         thumbnailUrl: thumbnailFile.publicUrl, // URL pública gerada pelo backend
         fileSize: totalFileSize,
       });
