@@ -66,7 +66,7 @@ export default function ProductsPage() {
       {/* Content */}
       <section className="py-8">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
             {/* Sidebar - Filtros */}
             <aside className="lg:w-64 flex-shrink-0">
               <div className="bg-card border border-border rounded-lg p-6 sticky top-4">

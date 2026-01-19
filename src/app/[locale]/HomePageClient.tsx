@@ -88,7 +88,7 @@ export function HomePageClient({ heroBackgrounds }: HomePageClientProps) {
           <h3 className="text-center text-lg font-semibold mb-8 text-foreground/80">
             Compatível com:
           </h3>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 lg:gap-12">
             <div className="text-center hover:text-primary transition-all duration-300 opacity-70 hover:opacity-100">
               <span className="text-xl font-semibold">Blender</span>
             </div>

@@ -88,7 +88,7 @@ export default function ProductDetailPage() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="w-full mx-auto px-6 py-8 flex justify-center">
-        <div className="grid grid-cols-1 lg:grid-cols-[1000px_420px] gap-8 items-start justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 lg:gap-8 items-start max-w-[1500px]">
           <div className="space-y-6 w-full">
             <div
               className="relative w-full bg-foreground/5 rounded-lg overflow-hidden border border-foreground/10"
@@ -200,14 +200,14 @@ export default function ProductDetailPage() {
                   onClick={handleBuyNow}
                   variant="outline"
                   size="lg"
-                  className="w-[75%] h-[56px] text-base font-bold tracking-wide border-2"
+                  className="flex-1 h-14 text-base font-bold tracking-wide border-2"
                 >
                   Comprar
                 </Button>
                 <button
                   onClick={handleAddToCart}
                   disabled={isInCart}
-                  className="w-[30%] h-[56px] inline-flex items-center justify-center border-2 border-gold text-gold bg-transparent hover:bg-gold/10 hover:border-gold-light hover:scale-105 active:scale-110 active:animate-bounce disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-black"
+                  className="w-14 h-14 flex-shrink-0 inline-flex items-center justify-center border-2 border-gold text-gold bg-transparent hover:bg-gold/10 hover:border-gold-light hover:scale-105 active:scale-110 active:animate-bounce disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-black"
                   title={
                     isInCart ? "Já está no carrinho" : "Adicionar ao carrinho"
                   }
@@ -257,17 +257,17 @@ export default function ProductDetailPage() {
                 {(product.rigged || product.animated || product.pbr) && (
                   <div className="pt-4 mt-2 flex flex-wrap gap-2">
                     {product.rigged && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-primary/10 text-primary rounded">
+                      <span className="text-[11px] font-bold px-2 py-1 bg-primary/10 text-primary rounded">
                         RIGGED
                       </span>
                     )}
                     {product.animated && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-primary/10 text-primary rounded">
+                      <span className="text-[11px] font-bold px-2 py-1 bg-primary/10 text-primary rounded">
                         ANIMATED
                       </span>
                     )}
                     {product.pbr && (
-                      <span className="text-[10px] font-bold px-2 py-1 bg-primary/10 text-primary rounded">
+                      <span className="text-[11px] font-bold px-2 py-1 bg-primary/10 text-primary rounded">
                         PBR
                       </span>
                     )}
@@ -278,7 +278,7 @@ export default function ProductDetailPage() {
 
             {/* Compatibilidade de Software */}
             <div className="border border-foreground/20 rounded-lg p-6 bg-card/30">
-              <h3 className="text-[10px] font-bold mb-4 opacity-50 uppercase tracking-[0.2em]">
+              <h3 className="text-xs font-bold mb-4 opacity-50 uppercase tracking-[0.2em]">
                 Compatível com:
               </h3>
               <div className="grid grid-cols-3 gap-2">
@@ -292,7 +292,7 @@ export default function ProductDetailPage() {
                 ].map((s) => (
                   <div
                     key={s}
-                    className="flex items-center justify-center p-2 rounded border border-foreground/10 bg-foreground/5 text-[9px] font-bold uppercase tracking-tight text-center"
+                    className="flex items-center justify-center p-2 rounded border border-foreground/10 bg-foreground/5 text-[11px] sm:text-xs font-bold uppercase tracking-tight text-center"
                   >
                     {s}
                   </div>

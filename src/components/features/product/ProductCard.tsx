@@ -27,7 +27,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* Featured Badge - Sempre visível quando aplicável */}
           {product.featured && (
-            <span className="absolute top-3 right-3 bg-primary text-black px-3 py-1 text-[10px] font-bold rounded-md uppercase tracking-wider z-10">
+            <span className="absolute top-3 right-3 bg-primary text-black px-3 py-1 text-[11px] font-bold rounded-md uppercase tracking-wider z-10">
               Destaque
             </span>
           )}

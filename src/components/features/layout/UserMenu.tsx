@@ -68,7 +68,7 @@ export function UserMenu({ user, isAdmin, onLogout }: UserMenuProps) {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-64 bg-white/80 backdrop-blur-xl border border-gray-200 rounded-lg shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-6rem)] overflow-y-auto bg-white/80 backdrop-blur-xl border border-gray-200 rounded-lg shadow-xl z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header com nome/email */}
           <div className="px-4 py-3 border-b border-gray-200 bg-gray-50/50">
             <p className="font-medium text-gray-900 truncate">

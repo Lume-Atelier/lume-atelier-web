@@ -30,7 +30,7 @@ export function Header() {
   return (
       <header className={headerClasses}>
         <div className="h-full max-w-[1400px] mx-auto px-6">
-          <div className="h-full grid grid-cols-3 items-center">
+          <div className="h-full flex items-center justify-between md:grid md:grid-cols-3">
             {/* Logo - Esquerda */}
             <div className="flex items-center justify-start">
               <Link href="/" className="flex items-center">
@@ -82,7 +82,7 @@ export function Header() {
               {/* Theme Toggle */}
               <button
                   onClick={toggleTheme}
-                  className="relative group hover:text-primary transition-all duration-300 hover:scale-110"
+                  className="relative group p-2 hover:text-primary transition-all duration-300 hover:scale-110"
                   aria-label="Toggle theme"
               >
                 {theme === 'dark' ? (

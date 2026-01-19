@@ -47,13 +47,13 @@ export default function CartPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Carrinho de Compras</h1>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-4 lg:gap-8">
         {/* Items List */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
             <div
               key={item.productId}
-              className="flex gap-4 p-4 border border-foreground/20 rounded-lg"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-4 border border-foreground/20 rounded-lg"
             >
               {/* Thumbnail */}
               <div className="relative w-24 h-24 bg-foreground/5 rounded overflow-hidden flex-shrink-0">
