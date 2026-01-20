@@ -182,14 +182,14 @@ export default function EditProductPage() {
 
         // Reordenar imagens conforme a ordem definida pelo usuário
         const imageFiles = files.filter(f => f.category === FileCategory.IMAGE);
-        if (imageFiles.length > 1) {
+        if (imageFiles.length > 0) {
           // Mapear nomes de arquivos locais para IDs do servidor na ordem correta
           const orderedImageIds = imageFiles
             .map(localFile => uploadedFiles.find(uf => uf.fileName === localFile.file.name))
             .filter((uf): uf is NonNullable<typeof uf> => uf !== undefined)
             .map(uf => uf.id);
 
-          if (orderedImageIds.length > 1) {
+          if (orderedImageIds.length > 0) {
             await AdminService.reorderFiles(productId, orderedImageIds);
           }
         }

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AdminService, CategoryService } from "@/lib/api/services";
 import { ProductStatus } from "@/types/product";
+import { FileCategory } from "@/types/productFile";
 import type { Category } from "@/types/category";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Button } from "@/components/ui/Button";
@@ -73,6 +74,7 @@ export default function NewProductPage() {
     addFiles,
     removeFile,
     updateCategory,
+    reorderFiles,
     setThumbnail,
     validateFiles,
     getImages,
@@ -192,7 +194,23 @@ export default function NewProductPage() {
         fileSize: totalFileSize,
       });
 
-      // 6. Redirecionar
+      // 6. Reordenar imagens conforme a ordem definida pelo usuário
+      const imageFiles = files.filter((f) => f.category === FileCategory.IMAGE);
+      if (imageFiles.length > 0) {
+        // Mapear nomes de arquivos locais para IDs do servidor na ordem correta
+        const orderedImageIds = imageFiles
+          .map((localFile) =>
+            uploadedFiles.find((uf) => uf.fileName === localFile.file.name),
+          )
+          .filter((uf): uf is NonNullable<typeof uf> => uf !== undefined)
+          .map((uf) => uf.id);
+
+        if (orderedImageIds.length > 0) {
+          await AdminService.reorderFiles(productId, orderedImageIds);
+        }
+      }
+
+      // 7. Redirecionar
       setError(""); // Garantir que não há erro antes de redirecionar
       router.push("/admin/products");
     } catch (err: any) {
@@ -561,6 +579,7 @@ export default function NewProductPage() {
                 onFilesAdded={addFiles}
                 onRemoveFile={removeFile}
                 onCategoryChange={updateCategory}
+                onReorder={reorderFiles}
                 selectedThumbnailId={selectedThumbnailId}
                 onThumbnailSelect={setThumbnail}
                 uploadProgress={
