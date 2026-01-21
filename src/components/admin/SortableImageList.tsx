@@ -74,7 +74,7 @@ export function SortableImageList({
       <SortableContext items={fileIds} strategy={verticalListSortingStrategy}>
         <div className="space-y-2">
           {files.map((file) => {
-            const progress = uploadProgress?.get(file.file.name);
+            const progress = uploadProgress?.get(file.fileName);
 
             return (
               <DraggableFileItem

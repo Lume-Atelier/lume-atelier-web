@@ -51,7 +51,12 @@ export default function EditProductPage() {
 
   // Hooks para gerenciamento de arquivos R2
   const {
-    files,
+    allFiles,
+    newFiles,
+    existingFiles,
+    filesToDelete,
+    loading: filesLoading,
+    loadError: filesLoadError,
     selectedThumbnailId,
     errors: fileErrors,
     addFiles,
@@ -61,7 +66,8 @@ export default function EditProductPage() {
     setThumbnail,
     validateFiles,
     getImages,
-  } = useProductFiles();
+    refetch: refetchFiles,
+  } = useProductFiles({ productId });
 
   const {
     uploadFiles,
@@ -143,51 +149,53 @@ export default function EditProductPage() {
     e.preventDefault();
     setError('');
 
+    // Validar arquivos (existentes + novos)
+    const validationErrors = validateFiles();
+    if (validationErrors.length > 0) {
+      setError(validationErrors.join(', '));
+      return;
+    }
+
     setSaving(true);
 
     try {
-      // 1. Se houver novos arquivos, fazer upload ao R2
+      // 1. Deletar arquivos marcados para remoção
+      if (filesToDelete.length > 0) {
+        await Promise.all(
+          filesToDelete.map(fileId =>
+            AdminService.deleteProductFile(productId, fileId)
+          )
+        );
+      }
+
+      // 2. Determinar thumbnail URL
       let newThumbnailUrl = product?.thumbnailUrl;
-      let totalFileSize = product?.fileSize || 0;
 
-      if (files.length > 0) {
-        // Validar arquivos apenas se houver novos
-        const validationErrors = validateFiles();
-        if (validationErrors.length > 0) {
-          setError(validationErrors.join(', '));
-          setSaving(false);
-          return;
-        }
+      // 3. Se houver novos arquivos, fazer upload ao R2
+      let uploadedFiles: Awaited<ReturnType<typeof uploadFiles>> = [];
 
-        // Upload de arquivos ao R2
-        const uploadedFiles = await uploadFiles(
+      if (newFiles.length > 0) {
+        // Upload de arquivos ao R2 (apenas novos)
+        uploadedFiles = await uploadFiles(
           productId,
-          files.map(f => f.file)
+          newFiles.filter(f => f.file).map(f => f.file!)
         );
-
-        // Determinar nova thumbnail
-        const thumbnailFile = uploadedFiles.find(
-          uf => files.find(f => f.id === selectedThumbnailId)?.file.name === uf.fileName
-        );
-
-        if (thumbnailFile) {
-          if (!thumbnailFile.publicUrl) {
-            throw new Error('Thumbnail não possui URL pública válida');
-          }
-          newThumbnailUrl = thumbnailFile.publicUrl; // URL pública gerada pelo backend
-        }
-
-        // Calcular tamanho total dos arquivos
-        totalFileSize = uploadedFiles.reduce((sum, f) => sum + f.fileSize, 0);
 
         // Reordenar imagens conforme a ordem definida pelo usuário
-        const imageFiles = files.filter(f => f.category === FileCategory.IMAGE);
+        const imageFiles = allFiles.filter(f => f.category === FileCategory.IMAGE);
         if (imageFiles.length > 0) {
-          // Mapear nomes de arquivos locais para IDs do servidor na ordem correta
+          // Mapear IDs na ordem correta (existentes + novos)
           const orderedImageIds = imageFiles
-            .map(localFile => uploadedFiles.find(uf => uf.fileName === localFile.file.name))
-            .filter((uf): uf is NonNullable<typeof uf> => uf !== undefined)
-            .map(uf => uf.id);
+            .map(localFile => {
+              if (localFile.source === 'server') {
+                return localFile.serverId || localFile.id;
+              } else {
+                // Para arquivos novos, encontrar o ID retornado pelo upload
+                const uploaded = uploadedFiles.find(uf => uf.fileName === localFile.fileName);
+                return uploaded?.id;
+              }
+            })
+            .filter((id): id is string => id !== undefined);
 
           if (orderedImageIds.length > 0) {
             await AdminService.reorderFiles(productId, orderedImageIds);
@@ -195,7 +203,37 @@ export default function EditProductPage() {
         }
       }
 
-      // 2. Atualizar dados do produto
+      // 4. Determinar thumbnail URL baseado na seleção
+      if (selectedThumbnailId) {
+        // Verificar se é de arquivo existente ou novo
+        const selectedFile = allFiles.find(f => f.id === selectedThumbnailId);
+
+        if (selectedFile) {
+          if (selectedFile.source === 'server') {
+            // Usar URL pública do arquivo existente
+            newThumbnailUrl = selectedFile.publicUrl;
+          } else {
+            // Buscar URL do arquivo recém-uploadado
+            const uploadedThumbnail = uploadedFiles.find(
+              uf => uf.fileName === selectedFile.fileName
+            );
+            if (uploadedThumbnail?.publicUrl) {
+              newThumbnailUrl = uploadedThumbnail.publicUrl;
+            }
+          }
+        }
+      }
+
+      // 5. Calcular tamanho total dos arquivos
+      // Arquivos existentes que não foram removidos + novos uploadados
+      const existingFilesSize = existingFiles
+        .filter(f => !filesToDelete.includes(f.serverId || f.id))
+        .reduce((sum, f) => sum + f.fileSize, 0);
+
+      const newFilesSize = uploadedFiles.reduce((sum, f) => sum + f.fileSize, 0);
+      const totalFileSize = existingFilesSize + newFilesSize;
+
+      // 6. Atualizar dados do produto
       const productData = {
         title: formData.title,
         description: formData.description,
@@ -225,9 +263,10 @@ export default function EditProductPage() {
       await AdminService.updateProduct(productId, productData);
       setError(''); // Garantir que não há erro antes de redirecionar
       router.push('/admin/products');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro ao atualizar produto:', err);
-      setError(err.response?.data?.message || err.message || 'Erro ao atualizar produto');
+      const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
+      setError(errorObj.response?.data?.message || errorObj.message || 'Erro ao atualizar produto');
     } finally {
       setSaving(false);
     }
@@ -567,11 +606,12 @@ export default function EditProductPage() {
               <h2 className="text-2xl font-bold mb-4">Arquivos do Produto</h2>
 
               <p className="text-sm text-foreground/60 mb-4">
-                Adicione novos arquivos ou mantenha os existentes. Deixe em branco para manter os arquivos atuais.
+                Gerencie os arquivos do produto. Arquivos existentes são marcados com um indicador azul.
+                Você pode adicionar novos arquivos ou remover os existentes.
               </p>
 
               <ProductFileManager
-                files={files}
+                files={allFiles}
                 onFilesAdded={addFiles}
                 onRemoveFile={removeFile}
                 onCategoryChange={updateCategory}
@@ -581,7 +621,20 @@ export default function EditProductPage() {
                 uploadProgress={uploadProgressMap ? new Map(uploadProgressMap.map((item) => [item.fileName, { progress: item.progress, status: item.status, error: item.error }])) : undefined}
                 disabled={uploading || saving}
                 errors={fileErrors}
+                existingFilesLoading={filesLoading}
+                existingFilesError={filesLoadError}
+                onRetryLoadExisting={refetchFiles}
               />
+
+              {/* Info sobre arquivos marcados para remoção */}
+              {filesToDelete.length > 0 && (
+                <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    <strong>{filesToDelete.length} arquivo(s)</strong> marcado(s) para remoção.
+                    Serão deletados ao salvar.
+                  </p>
+                </div>
+              )}
 
               {uploading && (
                 <div className="mt-4">
@@ -657,7 +710,7 @@ export default function EditProductPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={saving || uploading}
+                disabled={saving || uploading || filesLoading}
                 loading={saving || uploading}
                 variant="outline"
                 size="lg"

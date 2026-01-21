@@ -61,13 +61,13 @@ export function ThumbnailSelector({
                     : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-700'
                 }
               `}
-              title={image.file.name}
+              title={image.fileName}
             >
               {/* Imagem */}
               {image.previewUrl && (
                 <Image
                   src={image.previewUrl}
-                  alt={image.file.name}
+                  alt={image.fileName}
                   width={96}
                   height={96}
                   className="object-cover w-full h-full"
@@ -85,8 +85,13 @@ export function ThumbnailSelector({
 
               {/* Nome do arquivo (tooltip) */}
               <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-2 py-1">
-                <p className="text-xs text-white truncate">{image.file.name}</p>
+                <p className="text-xs text-white truncate">{image.fileName}</p>
               </div>
+
+              {/* Indicador de arquivo existente */}
+              {image.source === 'server' && (
+                <div className="absolute top-1 right-1 bg-blue-500 rounded-full w-3 h-3" title="Arquivo existente" />
+              )}
             </button>
           );
         })}

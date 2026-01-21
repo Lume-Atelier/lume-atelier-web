@@ -1,18 +1,35 @@
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { FileCategory, determineFileCategory } from '@/types';
-
-export interface FileWithMetadata {
-  id: string;                    // UUID único
-  file: File;                    // Objeto File original
-  category: FileCategory;        // Determinada automaticamente
-  previewUrl?: string;           // Para imagens (URL.createObjectURL)
-  displayOrder: number;          // Ordem de exibição
-}
+import { FileCategory, determineFileCategory, UnifiedFile, ProductFile } from '@/types';
+import { AdminService } from '@/lib/api/services';
 
 export interface FileValidationError {
   fileName: string;
   error: string;
+}
+
+export interface UseProductFilesOptions {
+  productId?: string;
+}
+
+export interface UseProductFilesReturn {
+  allFiles: UnifiedFile[];
+  existingFiles: UnifiedFile[];
+  newFiles: UnifiedFile[];
+  filesToDelete: string[];
+  loading: boolean;
+  loadError: string | null;
+  selectedThumbnailId: string | null;
+  errors: FileValidationError[];
+  addFiles: (files: File[]) => UnifiedFile[];
+  removeFile: (id: string) => void;
+  updateCategory: (id: string, category: FileCategory) => void;
+  reorderFiles: (fromIndex: number, toIndex: number) => void;
+  setThumbnail: (id: string) => void;
+  validateFiles: () => string[];
+  getImages: () => UnifiedFile[];
+  reset: () => void;
+  refetch: () => Promise<void>;
 }
 
 // Configurações de validação por categoria
@@ -40,19 +57,92 @@ const FILE_VALIDATIONS: Record<FileCategory, { extensions: string[]; maxSize: nu
 };
 
 /**
- * Hook para gerenciar arquivos de produto antes do upload
+ * Converte ProductFile do servidor para UnifiedFile
+ */
+function serverFileToUnified(file: ProductFile): UnifiedFile {
+  return {
+    id: file.id,
+    fileName: file.fileName,
+    fileSize: file.fileSize,
+    category: file.category,
+    displayOrder: file.displayOrder,
+    previewUrl: file.publicUrl,
+    source: 'server',
+    serverId: file.id,
+    publicUrl: file.publicUrl,
+    fileType: file.fileType,
+    uploadedAt: file.uploadedAt,
+  };
+}
+
+/**
+ * Hook para gerenciar arquivos de produto (novos e existentes)
  *
  * Funcionalidades:
+ * - Carregar arquivos existentes do servidor
  * - Adicionar/remover arquivos
  * - Categorização automática
  * - Preview de imagens
  * - Seleção de thumbnail
+ * - Rastrear arquivos a serem deletados
  * - Validações
  */
-export function useProductFiles() {
-  const [files, setFiles] = useState<FileWithMetadata[]>([]);
+export function useProductFiles(options: UseProductFilesOptions = {}): UseProductFilesReturn {
+  const { productId } = options;
+
+  // Arquivos existentes (do servidor)
+  const [existingFiles, setExistingFiles] = useState<UnifiedFile[]>([]);
+  // Novos arquivos (locais, ainda não uploadados)
+  const [newFiles, setNewFiles] = useState<UnifiedFile[]>([]);
+  // IDs de arquivos do servidor marcados para remoção
+  const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
+
   const [selectedThumbnailId, setSelectedThumbnailId] = useState<string | null>(null);
   const [errors, setErrors] = useState<FileValidationError[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  /**
+   * Carrega arquivos existentes do servidor
+   */
+  const loadExistingFiles = useCallback(async () => {
+    if (!productId) return;
+
+    setLoading(true);
+    setLoadError(null);
+
+    try {
+      const serverFiles = await AdminService.getProductFiles(productId);
+      const unified = serverFiles.map(serverFileToUnified);
+      setExistingFiles(unified);
+
+      // Se houver imagens, selecionar a primeira como thumbnail por padrão
+      const images = unified.filter(f => f.category === FileCategory.IMAGE);
+      if (images.length > 0 && !selectedThumbnailId) {
+        setSelectedThumbnailId(images[0].id);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar arquivos existentes:', err);
+      setLoadError('Erro ao carregar arquivos do produto. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  }, [productId, selectedThumbnailId]);
+
+  // Carregar arquivos existentes ao montar (se houver productId)
+  useEffect(() => {
+    if (productId) {
+      loadExistingFiles();
+    }
+  }, [productId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /**
+   * Combina arquivos existentes (não marcados para exclusão) com novos arquivos
+   */
+  const allFiles = [
+    ...existingFiles.filter(f => !filesToDelete.includes(f.serverId || f.id)),
+    ...newFiles,
+  ];
 
   /**
    * Valida um arquivo individual
@@ -80,11 +170,13 @@ export function useProductFiles() {
   /**
    * Adiciona novos arquivos
    */
-  const addFiles = useCallback((newFiles: File[]) => {
-    const validatedFiles: FileWithMetadata[] = [];
+  const addFiles = useCallback((files: File[]): UnifiedFile[] => {
+    const validatedFiles: UnifiedFile[] = [];
     const newErrors: FileValidationError[] = [];
 
-    newFiles.forEach((file) => {
+    const currentNewFilesCount = newFiles.length;
+
+    files.forEach((file, index) => {
       // Determinar categoria automaticamente
       const category = determineFileCategory(file.name);
 
@@ -104,79 +196,112 @@ export function useProductFiles() {
       // Adicionar arquivo
       validatedFiles.push({
         id: uuidv4(),
-        file,
+        fileName: file.name,
+        fileSize: file.size,
         category,
+        displayOrder: allFiles.length + currentNewFilesCount + index,
         previewUrl,
-        displayOrder: files.length + validatedFiles.length,
+        source: 'local',
+        file,
       });
     });
 
-    setFiles((prev) => [...prev, ...validatedFiles]);
+    setNewFiles((prev) => [...prev, ...validatedFiles]);
     // Sempre atualizar errors: limpa se não houver novos erros, ou seta os novos erros
     setErrors(newErrors);
 
     return validatedFiles;
-  }, [files.length, validateFile]);
+  }, [allFiles.length, newFiles.length, validateFile]);
 
   /**
-   * Remove um arquivo
+   * Remove um arquivo (marca para exclusão se for do servidor, ou remove se for local)
    */
   const removeFile = useCallback((id: string) => {
-    setFiles((prev) => {
+    // Verificar se é arquivo do servidor
+    const serverFile = existingFiles.find(f => f.id === id);
+    if (serverFile) {
+      // Marcar para exclusão
+      setFilesToDelete(prev => [...prev, serverFile.serverId || serverFile.id]);
+
+      // Se era a thumbnail selecionada, limpar seleção
+      if (selectedThumbnailId === id) {
+        setSelectedThumbnailId(null);
+      }
+      return;
+    }
+
+    // É arquivo local - remover da lista
+    setNewFiles((prev) => {
       const fileToRemove = prev.find((f) => f.id === id);
 
       // Revogar URL de preview se existir
-      if (fileToRemove?.previewUrl) {
+      if (fileToRemove?.previewUrl && fileToRemove.source === 'local') {
         URL.revokeObjectURL(fileToRemove.previewUrl);
       }
 
       // Reajustar displayOrder
       const filtered = prev.filter((f) => f.id !== id);
-      return filtered.map((f, index) => ({ ...f, displayOrder: index }));
+      return filtered.map((f, index) => ({ ...f, displayOrder: existingFiles.length + index }));
     });
 
     // Se era a thumbnail selecionada, limpar seleção
     if (selectedThumbnailId === id) {
       setSelectedThumbnailId(null);
     }
-  }, [selectedThumbnailId]);
+  }, [existingFiles, selectedThumbnailId]);
 
   /**
    * Atualiza a categoria de um arquivo
    */
   const updateCategory = useCallback((id: string, category: FileCategory) => {
-    setFiles((prev) =>
-      prev.map((f) => {
-        if (f.id !== id) return f;
+    // Verificar se é arquivo local
+    const localFile = newFiles.find(f => f.id === id);
+    if (localFile && localFile.file) {
+      // Validar nova categoria
+      const error = validateFile(localFile.file, category);
+      if (error) {
+        setErrors((prevErrors) => [
+          ...prevErrors,
+          { fileName: localFile.fileName, error },
+        ]);
+        return;
+      }
 
-        // Validar novo categoria
-        const error = validateFile(f.file, category);
-        if (error) {
-          setErrors((prevErrors) => [
-            ...prevErrors,
-            { fileName: f.file.name, error },
-          ]);
-          return f;
-        }
-
-        return { ...f, category };
-      })
-    );
-  }, [validateFile]);
+      setNewFiles((prev) =>
+        prev.map((f) => f.id === id ? { ...f, category } : f)
+      );
+    }
+  }, [newFiles, validateFile]);
 
   /**
    * Reordena arquivos (drag & drop)
    */
   const reorderFiles = useCallback((fromIndex: number, toIndex: number) => {
-    setFiles((prev) => {
-      const result = Array.from(prev);
-      const [removed] = result.splice(fromIndex, 1);
-      result.splice(toIndex, 0, removed);
+    // Trabalhar com allFiles combinados
+    const combined = [...allFiles];
+    const [removed] = combined.splice(fromIndex, 1);
+    combined.splice(toIndex, 0, removed);
 
-      // Atualizar displayOrder
-      return result.map((f, index) => ({ ...f, displayOrder: index }));
+    // Separar de volta em existentes e novos, atualizando displayOrder
+    const reorderedExisting: UnifiedFile[] = [];
+    const reorderedNew: UnifiedFile[] = [];
+
+    combined.forEach((file, index) => {
+      const updatedFile = { ...file, displayOrder: index };
+      if (file.source === 'server') {
+        reorderedExisting.push(updatedFile);
+      } else {
+        reorderedNew.push(updatedFile);
+      }
     });
-  }, []);
+
+    setExistingFiles(prev => {
+      // Manter arquivos marcados para exclusão + reordenados
+      const deletedFiles = prev.filter(f => filesToDelete.includes(f.serverId || f.id));
+      return [...reorderedExisting, ...deletedFiles];
+    });
+    setNewFiles(reorderedNew);
+  }, [allFiles, filesToDelete]);
 
   /**
    * Define a thumbnail
@@ -191,13 +316,13 @@ export function useProductFiles() {
   const validateFiles = useCallback((): string[] => {
     const validationErrors: string[] = [];
 
-    // Pelo menos 1 arquivo
-    if (files.length === 0) {
+    // Se não houver arquivos existentes E não houver novos arquivos
+    if (allFiles.length === 0) {
       validationErrors.push('Adicione pelo menos um arquivo ao produto');
     }
 
     // Pelo menos 1 imagem de preview (não textura 3D)
-    const images = files.filter(
+    const images = allFiles.filter(
       (f) => f.category === FileCategory.IMAGE
     );
 
@@ -212,55 +337,70 @@ export function useProductFiles() {
 
     // Validar thumbnail pertence às imagens
     if (selectedThumbnailId) {
-      const thumbnailFile = files.find((f) => f.id === selectedThumbnailId);
+      const thumbnailFile = allFiles.find((f) => f.id === selectedThumbnailId);
       if (!thumbnailFile || thumbnailFile.category !== FileCategory.IMAGE) {
         validationErrors.push('Thumbnail selecionada inválida - deve ser uma imagem de preview');
       }
     }
 
     return validationErrors;
-  }, [files, selectedThumbnailId]);
+  }, [allFiles, selectedThumbnailId]);
 
   /**
    * Retorna apenas imagens de preview (para seletor de thumbnail)
    */
-  const getImages = useCallback((): FileWithMetadata[] => {
-    return files.filter(
+  const getImages = useCallback((): UnifiedFile[] => {
+    return allFiles.filter(
       (f) => f.category === FileCategory.IMAGE
     );
-  }, [files]);
+  }, [allFiles]);
 
   /**
    * Limpa todos os arquivos
    */
   const reset = useCallback(() => {
-    // Revogar todas as preview URLs
-    files.forEach((f) => {
-      if (f.previewUrl) {
+    // Revogar todas as preview URLs de arquivos locais
+    newFiles.forEach((f) => {
+      if (f.previewUrl && f.source === 'local') {
         URL.revokeObjectURL(f.previewUrl);
       }
     });
 
-    setFiles([]);
+    setExistingFiles([]);
+    setNewFiles([]);
+    setFilesToDelete([]);
     setSelectedThumbnailId(null);
     setErrors([]);
-  }, [files]);
+    setLoadError(null);
+  }, [newFiles]);
+
+  /**
+   * Recarrega arquivos existentes
+   */
+  const refetch = useCallback(async () => {
+    await loadExistingFiles();
+  }, [loadExistingFiles]);
 
   /**
    * Cleanup de preview URLs ao desmontar
    */
   useEffect(() => {
     return () => {
-      files.forEach((f) => {
-        if (f.previewUrl) {
+      newFiles.forEach((f) => {
+        if (f.previewUrl && f.source === 'local') {
           URL.revokeObjectURL(f.previewUrl);
         }
       });
     };
-  }, [files]);
+  }, [newFiles]);
 
   return {
-    files,
+    allFiles,
+    existingFiles: existingFiles.filter(f => !filesToDelete.includes(f.serverId || f.id)),
+    newFiles,
+    filesToDelete,
+    loading,
+    loadError,
     selectedThumbnailId,
     errors,
     addFiles,
@@ -271,5 +411,10 @@ export function useProductFiles() {
     validateFiles,
     getImages,
     reset,
+    refetch,
   };
 }
+
+// Re-export para compatibilidade com componentes que importam FileWithMetadata
+// (UnifiedFile é o novo tipo padrão)
+export type FileWithMetadata = UnifiedFile;

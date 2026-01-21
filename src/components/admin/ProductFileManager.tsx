@@ -3,6 +3,7 @@ import type { FileWithMetadata } from '@/hooks/useProductFiles';
 import { FileUploadZone } from './FileUploadZone';
 import { FileList } from './FileList';
 import { ThumbnailSelector } from './ThumbnailSelector';
+import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 
 export interface ProductFileManagerProps {
   files: FileWithMetadata[];
@@ -15,6 +16,9 @@ export interface ProductFileManagerProps {
   uploadProgress?: Map<string, { progress: number; status: 'pending' | 'uploading' | 'confirming' | 'completed' | 'error'; error?: string }>;
   disabled?: boolean;
   errors?: Array<{ fileName: string; error: string }>;
+  existingFilesLoading?: boolean;
+  existingFilesError?: string | null;
+  onRetryLoadExisting?: () => void;
 }
 
 /**
@@ -24,6 +28,7 @@ export interface ProductFileManagerProps {
  * - FileUploadZone (drag-and-drop)
  * - FileList (lista com tabs)
  * - ThumbnailSelector (escolha de thumbnail)
+ * - Loading/error states para arquivos existentes
  */
 export function ProductFileManager({
   files,
@@ -36,6 +41,9 @@ export function ProductFileManager({
   uploadProgress,
   disabled = false,
   errors = [],
+  existingFilesLoading = false,
+  existingFilesError = null,
+  onRetryLoadExisting,
 }: ProductFileManagerProps) {
   // Filtrar apenas imagens de preview para o seletor de thumbnail (não texturas 3D)
   const images = files.filter(
@@ -44,10 +52,50 @@ export function ProductFileManager({
 
   return (
     <div className="space-y-6">
+      {/* Estado de carregamento dos arquivos existentes */}
+      {existingFilesLoading && (
+        <div className="p-6 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex items-center gap-3">
+            <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+            <div>
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                Carregando arquivos existentes...
+              </p>
+              <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                Buscando arquivos do produto no servidor
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Erro ao carregar arquivos existentes */}
+      {existingFilesError && !existingFilesLoading && (
+        <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                {existingFilesError}
+              </p>
+              {onRetryLoadExisting && (
+                <button
+                  onClick={onRetryLoadExisting}
+                  className="mt-2 inline-flex items-center gap-2 text-sm text-red-700 dark:text-red-300 hover:text-red-800 dark:hover:text-red-200 transition-colors"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Tentar novamente
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Zona de upload */}
       <FileUploadZone
         onFilesAdded={onFilesAdded}
-        disabled={disabled}
+        disabled={disabled || existingFilesLoading}
       />
 
       {/* Erros de validação */}
@@ -67,7 +115,7 @@ export function ProductFileManager({
       )}
 
       {/* Lista de arquivos */}
-      {files.length > 0 && (
+      {files.length > 0 && !existingFilesLoading && (
         <>
           <div>
             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -130,7 +178,7 @@ export function ProductFileManager({
       {uploadProgress && Array.from(uploadProgress.values()).some((p) => p.status === 'error') && (
         <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
           <p className="text-sm font-medium text-red-800 dark:text-red-200 mb-2">
-            ⚠️ Alguns arquivos falharam no upload:
+            Alguns arquivos falharam no upload:
           </p>
           <ul className="text-xs text-red-700 dark:text-red-300 space-y-1">
             {Array.from(uploadProgress.entries())

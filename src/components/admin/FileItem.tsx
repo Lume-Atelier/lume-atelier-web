@@ -1,4 +1,4 @@
-import { X, FileArchive, Image as ImageIcon, Box, Palette, File as FileIcon, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { X, FileArchive, Image as ImageIcon, Box, Palette, File as FileIcon, CheckCircle2, AlertCircle, Loader2, Cloud } from 'lucide-react';
 import { FileCategory, formatFileSize } from '@/types';
 import type { FileWithMetadata } from '@/hooks/useProductFiles';
 import Image from 'next/image';
@@ -20,6 +20,7 @@ export interface FileItemProps {
  * - Nome + categoria + tamanho
  * - Barra de progresso de upload
  * - Status visual
+ * - Indicador de arquivo existente (servidor)
  * - Botão de remoção
  */
 export function FileItem({
@@ -63,6 +64,11 @@ export function FileItem({
 
   // Ícone de status
   const getStatusIcon = () => {
+    // Para arquivos do servidor, mostrar ícone de nuvem se não estiver em upload
+    if (file.source === 'server' && uploadStatus === 'pending') {
+      return <Cloud className="w-5 h-5 text-blue-500" />;
+    }
+
     switch (uploadStatus) {
       case 'completed':
         return <CheckCircle2 className="w-5 h-5 text-green-500" />;
@@ -78,6 +84,11 @@ export function FileItem({
 
   // Texto de status
   const getStatusText = () => {
+    // Para arquivos do servidor
+    if (file.source === 'server' && uploadStatus === 'pending') {
+      return 'Existente';
+    }
+
     switch (uploadStatus) {
       case 'uploading':
         return `${uploadProgress}%`;
@@ -92,14 +103,21 @@ export function FileItem({
     }
   };
 
+  // Para arquivos do servidor, não permitir mudança de categoria
+  const canChangeCategory = file.source === 'local' && uploadStatus === 'pending';
+
   return (
-    <div className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+    <div className={`flex items-center gap-3 p-3 bg-white dark:bg-gray-800 border rounded-lg ${
+      file.source === 'server'
+        ? 'border-blue-200 dark:border-blue-800'
+        : 'border-gray-200 dark:border-gray-700'
+    }`}>
       {/* Preview ou ícone */}
       <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center bg-gray-100 dark:bg-gray-900 rounded overflow-hidden">
         {file.previewUrl ? (
           <Image
             src={file.previewUrl}
-            alt={file.file.name}
+            alt={file.fileName}
             width={64}
             height={64}
             className="object-cover w-full h-full"
@@ -114,11 +132,11 @@ export function FileItem({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-              {file.file.name}
+              {file.fileName}
             </p>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
               {/* Badge de categoria */}
-              {onCategoryChange ? (
+              {canChangeCategory && onCategoryChange ? (
                 <select
                   value={file.category}
                   onChange={(e) => onCategoryChange(file.id, e.target.value as FileCategory)}
@@ -139,13 +157,17 @@ export function FileItem({
 
               {/* Tamanho do arquivo */}
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                {formatFileSize(file.file.size)}
+                {formatFileSize(file.fileSize)}
               </span>
 
               {/* Status */}
               <div className="flex items-center gap-1">
                 {getStatusIcon()}
-                <span className="text-xs text-gray-600 dark:text-gray-300">
+                <span className={`text-xs ${
+                  file.source === 'server' && uploadStatus === 'pending'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-300'
+                }`}>
                   {getStatusText()}
                 </span>
               </div>
@@ -157,7 +179,7 @@ export function FileItem({
             onClick={() => onRemove(file.id)}
             disabled={uploadStatus === 'uploading' || uploadStatus === 'confirming'}
             className="flex-shrink-0 p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Remover arquivo"
+            title={file.source === 'server' ? 'Marcar para remoção' : 'Remover arquivo'}
           >
             <X className="w-5 h-5" />
           </button>

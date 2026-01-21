@@ -124,7 +124,7 @@ export function FileList({
         // Lista normal para outras categorias
         <div className="space-y-2">
           {filteredFiles.map((file) => {
-            const progress = uploadProgress?.get(file.file.name);
+            const progress = uploadProgress?.get(file.fileName);
 
             return (
               <FileItem

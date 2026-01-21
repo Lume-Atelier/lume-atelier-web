@@ -10,6 +10,31 @@ export enum FileCategory {
 }
 
 /**
+ * Tipo unificado para arquivos locais (novos) e do servidor (existentes)
+ * Usado para exibir e gerenciar arquivos na UI
+ */
+export interface UnifiedFile {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  category: FileCategory;
+  displayOrder: number;
+  previewUrl?: string;           // blob URL (local) ou publicUrl (server)
+
+  // Discriminador
+  source: 'local' | 'server';
+
+  // Apenas para arquivos locais
+  file?: File;
+
+  // Apenas para arquivos do servidor
+  serverId?: string;
+  publicUrl?: string;
+  fileType?: string;
+  uploadedAt?: string;
+}
+
+/**
  * Arquivo associado a um produto (armazenado no R2)
  * ❌ NÃO contém r2Key (dado sensível, apenas no backend)
  * ❌ NÃO contém presignedUrl (apenas após validação de compra)
