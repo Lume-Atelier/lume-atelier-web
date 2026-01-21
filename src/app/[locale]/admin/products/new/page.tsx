@@ -68,7 +68,8 @@ export default function NewProductPage() {
 
   // Hooks para gerenciamento de arquivos R2
   const {
-    files,
+    allFiles,
+    newFiles,
     selectedThumbnailId,
     errors: fileErrors,
     addFiles,
@@ -165,14 +166,13 @@ export default function NewProductPage() {
       // 3. Upload de arquivos ao R2
       const uploadedFiles = await uploadFiles(
         productId,
-        files.map((f) => f.file),
+        newFiles.filter((f) => f.file).map((f) => f.file!),
       );
 
       // 4. Determinar thumbnail URL
+      const selectedFile = allFiles.find((f) => f.id === selectedThumbnailId);
       const thumbnailFile = uploadedFiles.find(
-        (uf) =>
-          files.find((f) => f.id === selectedThumbnailId)?.file.name ===
-          uf.fileName,
+        (uf) => selectedFile?.fileName === uf.fileName,
       );
 
       if (!thumbnailFile) {
@@ -195,12 +195,12 @@ export default function NewProductPage() {
       });
 
       // 6. Reordenar imagens conforme a ordem definida pelo usuário
-      const imageFiles = files.filter((f) => f.category === FileCategory.IMAGE);
+      const imageFiles = allFiles.filter((f) => f.category === FileCategory.IMAGE);
       if (imageFiles.length > 0) {
         // Mapear nomes de arquivos locais para IDs do servidor na ordem correta
         const orderedImageIds = imageFiles
           .map((localFile) =>
-            uploadedFiles.find((uf) => uf.fileName === localFile.file.name),
+            uploadedFiles.find((uf) => uf.fileName === localFile.fileName),
           )
           .filter((uf): uf is NonNullable<typeof uf> => uf !== undefined)
           .map((uf) => uf.id);
@@ -575,7 +575,7 @@ export default function NewProductPage() {
               <h2 className="text-2xl font-bold mb-4">Arquivos do Produto</h2>
 
               <ProductFileManager
-                files={files}
+                files={allFiles}
                 onFilesAdded={addFiles}
                 onRemoveFile={removeFile}
                 onCategoryChange={updateCategory}
